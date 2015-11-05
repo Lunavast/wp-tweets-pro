@@ -1,0 +1,831 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Tweets PRO\n"
+"POT-Creation-Date: 2015-08-27 17:51-0500\n"
+"PO-Revision-Date: 2015-08-27 17:51-0500\n"
+"Last-Translator: Joseph Dolson <joe@joedolson.com>\n"
+"Language-Team: Joseph Dolson <joe@joedolson.com>\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.4\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: wpt-pro-functions.php\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#. Plugin Name of the plugin/theme
+#: lang/strings.php:15 wpt-pro-functions.php:924
+msgid "WP Tweets PRO"
+msgstr ""
+
+#. Description of the plugin/theme
+#: lang/strings.php:16
+msgid "Adds great new features to extend WP to Twitter."
+msgstr ""
+
+#. Author of the plugin/theme
+#: lang/strings.php:17
+msgid "Joseph Dolson"
+msgstr ""
+
+#: lang/strings.php:18
+msgid "http://www.joedolson.com/"
+msgstr ""
+
+#: wpt-auto-repost.php:20
+msgid "Failed to select any post for Tweeting"
+msgstr ""
+
+#: wpt-auto-repost.php:20
+msgid ""
+"WP Tweets PRO did not find a valid post to repost. This may mean that there "
+"are no posts between the selected minimum and maximum ages."
+msgstr ""
+
+#: wpt-auto-repost.php:34
+msgid "Autoposted Tweet succeeded"
+msgstr ""
+
+#: wpt-auto-repost.php:34
+#, php-format
+msgid "Tweet autoposted: %s"
+msgstr ""
+
+#: wpt-auto-repost.php:40
+msgid "Autoposted Tweet failed"
+msgstr ""
+
+#: wpt-auto-repost.php:40
+#, php-format
+msgid "Site failed to automatically post. Tweet attempted: %s"
+msgstr ""
+
+#: wpt-auto-repost.php:40
+msgid "Error message from Twitter:"
+msgstr ""
+
+#: wpt-auto-repost.php:132
+msgid "Every 4 hours"
+msgstr ""
+
+#: wpt-auto-repost.php:136
+msgid "Every 8 hours"
+msgstr ""
+
+#: wpt-auto-repost.php:140
+msgid "Every 16 hours"
+msgstr ""
+
+#: wpt-auto-repost.php:144
+msgid "Every other day"
+msgstr ""
+
+#: wpt-auto-repost.php:148
+msgid "Every four days"
+msgstr ""
+
+#: wpt-auto-repost.php:152
+msgid "Once Weekly"
+msgstr ""
+
+#: wpt-auto-repost.php:156
+msgid "Once Monthly"
+msgstr ""
+
+#: wpt-pro-functions.php:89
+msgid ""
+"Warning: your Tweet re-posts are not differentiated. This may cause Twitter "
+"to block your re-posted Tweets."
+msgstr ""
+
+#: wpt-pro-functions.php:125
+msgid "Automated Schedule Cleared"
+msgstr ""
+
+#: wpt-pro-functions.php:158
+msgid "WP Tweets PRO key not valid."
+msgstr ""
+
+#: wpt-pro-functions.php:160
+#, php-format
+msgid ""
+"WP Tweets PRO license key already registered. <a href=\"%s\">Upgrade to a "
+"Developer's license!</a>"
+msgstr ""
+
+#: wpt-pro-functions.php:162
+msgid "Your payment for WP Tweets PRO has not been confirmed."
+msgstr ""
+
+#: wpt-pro-functions.php:166
+msgid "WP Tweets PRO key validated. Enjoy!"
+msgstr ""
+
+#: wpt-pro-functions.php:169
+msgid "You have deleted your WP Tweets PRO license key."
+msgstr ""
+
+#: wpt-pro-functions.php:171
+msgid ""
+"WP Tweets PRO received an unexpected message from the license server. Try "
+"again in a bit."
+msgstr ""
+
+#: wpt-pro-functions.php:174
+msgid "WP Tweets PRO Settings Updated"
+msgstr ""
+
+#: wpt-pro-functions.php:398
+msgctxt "Publish box date format"
+msgid "M j, Y @ G:i"
+msgstr ""
+
+#: wpt-pro-functions.php:405
+msgid "Scheduled Tweets from WP Tweets PRO"
+msgstr ""
+
+#: wpt-pro-functions.php:411
+msgid "Your Scheduled Tweets"
+msgstr ""
+
+#: wpt-pro-functions.php:413
+msgid ""
+"This is a list of tweets which are scheduled to be sent to Twitter for posts "
+"which have already been published."
+msgstr ""
+
+#: wpt-pro-functions.php:418
+msgid "Tweet on <em>date</em> at <em>time</em>"
+msgstr ""
+
+#: wpt-pro-functions.php:419
+msgid "Tweet"
+msgstr ""
+
+#: wpt-pro-functions.php:420 wpt-pro-functions.php:691
+#: wpt-pro-functions.php:805
+msgid "Author"
+msgstr ""
+
+#: wpt-pro-functions.php:421
+msgid "Options"
+msgstr ""
+
+#: wpt-pro-functions.php:441
+#, php-format
+msgid "Tweet for %1$s has been deleted."
+msgstr ""
+
+#: wpt-pro-functions.php:444
+msgid "Scheduled Tweet has been deleted."
+msgstr ""
+
+#: wpt-pro-functions.php:455
+msgid "Includes Image"
+msgstr ""
+
+#: wpt-pro-functions.php:465
+msgid "Delete"
+msgstr ""
+
+#: wpt-pro-functions.php:474
+msgid "Delete checked Tweets"
+msgstr ""
+
+#: wpt-pro-functions.php:476
+msgid "Clear Tweets Queue"
+msgstr ""
+
+#: wpt-pro-functions.php:483 wpt-pro-functions.php:530
+msgid "Schedule a Tweet"
+msgstr ""
+
+#: wpt-pro-functions.php:487
+msgid ""
+"Tweets must be associated with a post ID; running the WP to Twitter filters "
+"for template tags and other custom fields is optional."
+msgstr ""
+
+#: wpt-pro-functions.php:493
+msgid "Tweet Text"
+msgstr ""
+
+#: wpt-pro-functions.php:493
+msgid "Run WP to Twitter filters on this Tweet"
+msgstr ""
+
+#: wpt-pro-functions.php:498
+msgid "Date"
+msgstr ""
+
+#: wpt-pro-functions.php:502
+msgid "Time"
+msgstr ""
+
+#: wpt-pro-functions.php:508
+msgid "Associate with post ID: (required,default is most recently published)"
+msgstr ""
+
+#: wpt-pro-functions.php:512
+msgid "Post to this author"
+msgstr ""
+
+#: wpt-pro-functions.php:514
+msgid "Main site account"
+msgstr ""
+
+#: wpt-pro-functions.php:515
+msgid "Current User's account"
+msgstr ""
+
+#: wpt-pro-functions.php:532
+msgid "Recently published posts/IDs:"
+msgstr ""
+
+#: wpt-pro-functions.php:546 wpt-pro-functions.php:706
+#: wpt-pro-functions.php:819
+msgid "Please Activate WP to Twitter!"
+msgstr ""
+
+#: wpt-pro-functions.php:572
+msgid ""
+"You must include a custom tweet text and a post ID to associate the tweet "
+"with."
+msgstr ""
+
+#: wpt-pro-functions.php:574
+msgid "The time provided was either invalid or in the past."
+msgstr ""
+
+#: wpt-pro-functions.php:581
+msgid "Your custom Tweet has been scheduled."
+msgstr ""
+
+#: wpt-pro-functions.php:608
+msgid "Saved Tweets Deleted"
+msgstr ""
+
+#: wpt-pro-functions.php:652
+msgid "Past Tweets saved by WP Tweets PRO"
+msgstr ""
+
+#: wpt-pro-functions.php:658
+msgid "Posts with Sent Tweets"
+msgstr ""
+
+#: wpt-pro-functions.php:665
+msgid "Clear saved Tweets for this post type"
+msgstr ""
+
+#: wpt-pro-functions.php:669
+msgid ""
+"This is a list of tweets WP Tweets PRO has sent or attempted to send to "
+"Twitter. WP Tweets PRO started tracking this with version 2.2.9; earlier "
+"tweets will not be shown."
+msgstr ""
+
+#: wpt-pro-functions.php:679 wpt-pro-functions.php:793
+msgid "&laquo; Previous Page"
+msgstr ""
+
+#: wpt-pro-functions.php:680 wpt-pro-functions.php:794
+msgid "Next Page &raquo;"
+msgstr ""
+
+#: wpt-pro-functions.php:690 wpt-pro-functions.php:804
+msgid "Post Title"
+msgstr ""
+
+#: wpt-pro-functions.php:692
+msgid "Date Posted"
+msgstr ""
+
+#: wpt-pro-functions.php:725
+msgid "Failed Tweets Deleted"
+msgstr ""
+
+#: wpt-pro-functions.php:767
+msgid "Failed Tweets from WP Tweets PRO"
+msgstr ""
+
+#: wpt-pro-functions.php:773
+msgid "Posts with Failed Tweets"
+msgstr ""
+
+#: wpt-pro-functions.php:779
+msgid "Clear failed Tweets for this post type"
+msgstr ""
+
+#: wpt-pro-functions.php:782
+#, php-format
+msgid ""
+"This is a list of tweets WP Tweets PRO failed to send to Twitter with the "
+"reported reason for the failure. Data gathered starting with WP to Twitter "
+"version 2.4.7. Each page shows the failed tweets in that set of %d posts."
+msgstr ""
+
+#: wpt-pro-functions.php:905
+msgid "None"
+msgstr ""
+
+#: wpt-pro-functions.php:932
+msgid "Scheduled Tweets"
+msgstr ""
+
+#: wpt-pro-functions.php:933
+msgid "Past Tweets"
+msgstr ""
+
+#: wpt-pro-functions.php:934
+msgid "Failed Tweets"
+msgstr ""
+
+#: wpt-pro-functions.php:939
+msgid ""
+"<strong>WP Tweets PRO</strong> requires that the current version of WP to "
+"Twitter is also activated. Please re-activate or update WP to Twitter! Thank "
+"you!"
+msgstr ""
+
+#: wpt-pro-functions.php:948
+msgid "You have successfully connected your profile to Twitter"
+msgstr ""
+
+#: wpt-pro-functions.php:951
+msgid ""
+"We could not connect your profile to Twitter. Please check your application "
+"keys and settings and try again."
+msgstr ""
+
+#: wpt-pro-functions.php:954
+msgid "Your Twitter keys were not received - did you leave the fields blank?"
+msgstr ""
+
+#: wpt-pro-functions.php:957
+msgid ""
+"We could not connect your profile to Twitter due to a time discrepancy "
+"between this server and Twitter."
+msgstr ""
+
+#: wpt-pro-functions.php:960
+msgid "You have successfully disconnected your profile from Twitter"
+msgstr ""
+
+#: wpt-pro-functions.php:991
+msgid "Tweet Template for new posts:"
+msgstr ""
+
+#: wpt-pro-functions.php:992
+msgid "Tweet Template for edited posts:"
+msgstr ""
+
+#: wpt-pro-functions.php:993
+msgid "Number of reposts"
+msgstr ""
+
+#: wpt-pro-functions.php:994
+msgid "Default"
+msgstr ""
+
+#: wpt-pro-functions.php:1063
+msgid "Add custom retweets"
+msgstr ""
+
+#: wpt-pro-functions.php:1076
+#, php-format
+msgid "Retweet %d"
+msgstr ""
+
+#: wpt-pro-functions.php:1105
+msgid "Delay for <em>x</em> minutes:"
+msgstr ""
+
+#: wpt-pro-functions.php:1106
+msgid "No delay"
+msgstr ""
+
+#: wpt-pro-functions.php:1109
+msgid "Re-post after <em>x</em> hours:"
+msgstr ""
+
+#: wpt-pro-functions.php:1110
+msgid "No re-post"
+msgstr ""
+
+#: wpt-pro-functions.php:1115
+msgid "Co-tweet to site Twitter account"
+msgstr ""
+
+#: wpt-pro-functions.php:1123
+msgid "Twitter Card Type"
+msgstr ""
+
+#: wpt-pro-functions.php:1125 wpt-pro-functions.php:1275
+msgid "Summary"
+msgstr ""
+
+#: wpt-pro-functions.php:1126 wpt-pro-functions.php:1276
+msgid "Photo"
+msgstr ""
+
+#: wpt-pro-functions.php:1127 wpt-pro-functions.php:1277
+msgid "Summary, Large Image"
+msgstr ""
+
+#: wpt-pro-functions.php:1137
+msgid "No image upload"
+msgstr ""
+
+#: wpt-pro-functions.php:1138
+msgid "Upload image"
+msgstr ""
+
+#: wpt-pro-functions.php:1142
+msgid "Re-post how many times:"
+msgstr ""
+
+#: wpt-pro-functions.php:1152
+msgid "Don't automatically repost this post"
+msgstr ""
+
+#: wpt-pro-functions.php:1166
+#, php-format
+msgid ""
+"You must <a href='%s'>enter your WP Tweets Pro license key</a> for support & "
+"updates to WP Tweets PRO features."
+msgstr ""
+
+#: wpt-pro-functions.php:1182
+msgid "WP Tweets PRO Settings"
+msgstr ""
+
+#: wpt-pro-functions.php:1186
+msgid "License Key"
+msgstr ""
+
+#: wpt-pro-functions.php:1190
+msgid "Scheduling"
+msgstr ""
+
+#: wpt-pro-functions.php:1192
+msgid "Number of minutes to delay tweets"
+msgstr ""
+
+#: wpt-pro-functions.php:1196
+msgid "Re-post Tweet after how many hours"
+msgstr ""
+
+#: wpt-pro-functions.php:1200
+msgid "Re-post Tweet how many times at this interval?"
+msgstr ""
+
+#: wpt-pro-functions.php:1208
+msgid "Blackout Period: Reschedule Tweets if"
+msgstr ""
+
+#: wpt-pro-functions.php:1209
+msgid "between"
+msgstr ""
+
+#: wpt-pro-functions.php:1212 wpt-pro-functions.php:1225
+msgid "AM"
+msgstr ""
+
+#: wpt-pro-functions.php:1218 wpt-pro-functions.php:1230
+msgid "PM"
+msgstr ""
+
+#: wpt-pro-functions.php:1222
+msgid "and"
+msgstr ""
+
+#: wpt-pro-functions.php:1235
+#, php-format
+msgid "Tweets rescheduled for times between %1$s:00 and %2$s:00."
+msgstr ""
+
+#: wpt-pro-functions.php:1242
+msgid "Differentiate Re-posted Tweets"
+msgstr ""
+
+#: wpt-pro-functions.php:1246
+msgid "First Repost"
+msgstr ""
+
+#: wpt-pro-functions.php:1247
+msgid "Exclude Media on First Repost"
+msgstr ""
+
+#: wpt-pro-functions.php:1250
+msgid "Second Repost"
+msgstr ""
+
+#: wpt-pro-functions.php:1251
+msgid "Exclude Media on Second Repost"
+msgstr ""
+
+#: wpt-pro-functions.php:1254
+msgid "Third Repost"
+msgstr ""
+
+#: wpt-pro-functions.php:1255
+msgid "Exclude Media on Third Repost"
+msgstr ""
+
+#: wpt-pro-functions.php:1260
+msgid "Move repost prefixes to end of repost"
+msgstr ""
+
+#: wpt-pro-functions.php:1267
+msgid ""
+"Co-tweeting and <a href=\"https://dev.twitter.com/cards\">Twitter Cards</a>"
+msgstr ""
+
+#: wpt-pro-functions.php:1270
+msgid "Enable Twitter Cards."
+msgstr ""
+
+#: wpt-pro-functions.php:1270
+msgid "Validate your Twitter Cards"
+msgstr ""
+
+#: wpt-pro-functions.php:1273
+msgid "Default Twitter Card type"
+msgstr ""
+
+#: wpt-pro-functions.php:1281
+msgid "Auto-enable photo card if post length less than"
+msgstr ""
+
+#: wpt-pro-functions.php:1282
+msgid "characters"
+msgstr ""
+
+#: wpt-pro-functions.php:1286
+msgid "Co-Tweet to Main Site account and author's account."
+msgstr ""
+
+#: wpt-pro-functions.php:1291
+msgid "All co-tweets sent to this author"
+msgstr ""
+
+#: wpt-pro-functions.php:1293
+msgid "Post author"
+msgstr ""
+
+#: wpt-pro-functions.php:1310
+msgid "Add hashtag filters"
+msgstr ""
+
+#: wpt-pro-functions.php:1313
+msgid "Filter Post Titles and insert hashtags"
+msgstr ""
+
+#: wpt-pro-functions.php:1317
+msgid "Filter Post excerpts and insert hashtags"
+msgstr ""
+
+#: wpt-pro-functions.php:1322
+msgid "Tweet Comments"
+msgstr ""
+
+#: wpt-pro-functions.php:1328
+msgid "Update Twitter when new comments are posted"
+msgstr ""
+
+#: wpt-pro-functions.php:1329
+msgid "Template for new comments:"
+msgstr ""
+
+#: wpt-pro-functions.php:1330
+msgid "Delay comments (minutes)"
+msgstr ""
+
+#: wpt-pro-functions.php:1332
+msgid ""
+"Comments can use <code>#commenter#</code> to post the commenter's name in "
+"the Tweet, <code>#comment#</code> to post an excerpt of the comment, and "
+"<code>#comment_date#</code>. Comments will be Tweeted immediately when "
+"approved, or automatically if commenter has the \"moderate comments\" "
+"capability."
+msgstr ""
+
+#: wpt-pro-functions.php:1336
+#, php-format
+msgid ""
+"<em>Disabled</em>: Require <a href='%s'>administrator moderation of "
+"comments</a> or a previously approved comment to enable Tweeting comments."
+msgstr ""
+
+#: wpt-pro-functions.php:1341
+msgid "Upload Images to Twitter"
+msgstr ""
+
+#: wpt-pro-functions.php:1346
+msgid ""
+"Upload images to Twitter (Featured Image first, first other attached image "
+"otherwise.)"
+msgstr ""
+
+#: wpt-pro-functions.php:1350
+msgid "<em>Disabled</em>: cURL support not available."
+msgstr ""
+
+#: wpt-pro-functions.php:1357
+msgid "Custom Tweet Filters"
+msgstr ""
+
+#: wpt-pro-functions.php:1358
+msgid "Use these filters to set custom rules to block tweeting."
+msgstr ""
+
+#: wpt-pro-functions.php:1364
+msgid "Automatically Tweet Old Posts"
+msgstr ""
+
+#: wpt-pro-functions.php:1370
+msgid "Delete currently scheduled posting cycle"
+msgstr ""
+
+#: wpt-pro-functions.php:1376
+msgid "Autopost interval"
+msgstr ""
+
+#: wpt-pro-functions.php:1378
+msgid "None selected"
+msgstr ""
+
+#: wpt-pro-functions.php:1389
+msgid "Template for autoscheduled posts"
+msgstr ""
+
+#: wpt-pro-functions.php:1393
+msgid "Minimum age of posts eligible for automatic Tweeting"
+msgstr ""
+
+#: wpt-pro-functions.php:1395 wpt-pro-functions.php:1405
+msgid "No limit"
+msgstr ""
+
+#: wpt-pro-functions.php:1396
+msgid "1 month"
+msgstr ""
+
+#: wpt-pro-functions.php:1397
+msgid "3 months"
+msgstr ""
+
+#: wpt-pro-functions.php:1398
+msgid "6 months"
+msgstr ""
+
+#: wpt-pro-functions.php:1399 wpt-pro-functions.php:1406
+msgid "12 months"
+msgstr ""
+
+#: wpt-pro-functions.php:1403
+msgid "Maximum age of posts eligible for automatic Tweeting"
+msgstr ""
+
+#: wpt-pro-functions.php:1407
+msgid "2 years"
+msgstr ""
+
+#: wpt-pro-functions.php:1408
+msgid "5 years"
+msgstr ""
+
+#: wpt-pro-functions.php:1409
+msgid "10 years"
+msgstr ""
+
+#: wpt-pro-functions.php:1413
+msgid "Automatically Tweet these post types"
+msgstr ""
+
+#: wpt-pro-functions.php:1439
+msgid "Notify me about autoposted Tweets"
+msgstr ""
+
+#: wpt-pro-functions.php:1445
+msgid "Update WP Tweets PRO Settings"
+msgstr ""
+
+#: wpt-pro-functions.php:1458
+msgid "<em>Individual Author accounts are already enabled.</em>"
+msgstr ""
+
+#: wpt-pro-functions.php:1460
+msgid ""
+"<em>Enable individual Author accounts in <a href='#indauthors'>Advanced "
+"Settings</a>, below.</em>"
+msgstr ""
+
+#: wpt-pro-functions.php:1466
+msgid "WP Tweets PRO Notes"
+msgstr ""
+
+#: wpt-pro-functions.php:1468
+msgid ""
+"Most WP Tweets PRO settings can also be set on a per-post basis. Leave empty "
+"for instant posting and no re-post."
+msgstr ""
+
+#: wpt-pro-functions.php:1469
+msgid "Twitter blocks identical Tweets. Prepend text to differentiate reposts."
+msgstr ""
+
+#: wpt-pro-functions.php:1470
+msgid "Additional Twitter accounts are added in user profiles."
+msgstr ""
+
+#: wpt-pro-functions.php:1495
+msgid "Tweet to:"
+msgstr ""
+
+#: wpt-pro-functions.php:1496
+msgid "Site account"
+msgstr ""
+
+#: wpt-pro-functions.php:1684
+msgid "Comment Tweet"
+msgstr ""
+
+#: wpt-pro-functions.php:1697
+#, php-format
+msgid ""
+"<a href=\"%s\" data-wp-lists=\"dim:the-comment-list:comment-%d:unapproved:"
+"e7e7d3:tweet=false:new=approved\" class=\"vim-a\">Approve without Tweeting</"
+"a>"
+msgstr ""
+
+#: wpt-pro-functions.php:1701
+msgid "No Tweet saved for this comment."
+msgstr ""
+
+#: wpt-pro-functions.php:1886 wpt-pro-functions.php:1898
+msgid "Don't autotweet this term"
+msgstr ""
+
+#: wpt-pro-functions.php:1922 wpt-pro-functions.php:1940
+msgid "Tweet tag as"
+msgstr ""
+
+#: wpt-pro-functions.php:1929 wpt-pro-functions.php:1946
+msgid "ignore"
+msgstr ""
+
+#: wpt-pro-functions.php:1965
+msgid "Term filters updated."
+msgstr ""
+
+#: wpt-pro-functions.php:1971
+msgid "Term filtering method reversed."
+msgstr ""
+
+#: wpt-pro-functions.php:2028
+msgid ""
+"There are more than 500 terms in this taxonomy. Use the "
+"<code>wpt_filter_terms</code> filter to apply custom limits on this taxonomy."
+msgstr ""
+
+#: wpt-pro-functions.php:2032
+msgid "Exclude"
+msgstr ""
+
+#: wpt-pro-functions.php:2032
+msgid "Include"
+msgstr ""
+
+#: wpt-pro-functions.php:2035
+#, php-format
+msgid "%3$s %1$s by %2$s"
+msgstr ""
+
+#: wpt-pro-functions.php:2039
+#, php-format
+msgid "Tweet posts in checked %s"
+msgstr ""
+
+#: wpt-pro-functions.php:2059
+msgid "No terms in this taxonomy."
+msgstr ""
+
+#: wpt-pro-functions.php:2067
+msgid "No taxonomies found."
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://www.joedolson.com/wp-tweets-pro/"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://www.joedolson.com/"
+msgstr ""
