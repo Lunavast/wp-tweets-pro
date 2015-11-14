@@ -9,9 +9,9 @@ Author URI: https://www.joedolson.com/
 */
 /*  Copyright 2012-2015  Joseph C Dolson  (email : plugins@joedolson.com)
 
-    This program is  software; you can redistribute it and/or modify
+    This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the  Software Foundation; either version 2 of the License, or
+    the Free Software Foundation; either version 2 of the License, or
     (at your option) any later version.
 	
     This program is distributed in the hope that it will be useful,
@@ -20,7 +20,7 @@ Author URI: https://www.joedolson.com/
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the  Software
+    along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
@@ -519,16 +519,17 @@ function wpt_get_scheduled_tweets() {
 		<?php $nonce = wp_nonce_field('wp-to-twitter-nonce', '_wpnonce', true, false).wp_referer_field(false);  echo "<div>$nonce</div>"; ?>	
 			<p class='jtw'>
 				<label for='jtw'><?php _e('Tweet Text','wp-tweets-pro'); ?></label> <input type="checkbox" value='on' id='filter' name='filter' checked='checked' /> <label for='filter'><?php _e('Run WP to Twitter filters on this Tweet','wp-tweets-pro'); ?></label><br />
-				<textarea id='jtw' name='tweet' rows='3' cols='70'><?php echo ( isset($schedule['tweet']) )?stripslashes($schedule['tweet'] ) : ''; ?></textarea>
+				<textarea id='jtw' name='tweet' rows='3' cols='70'><?php echo ( isset($schedule['tweet']) ) ? stripslashes($schedule['tweet'] ) : ''; ?></textarea>
 			</p>
 			<div class="datetime">
 			<div class='date'>
-				<label for='date'><?php _e('Date','wp-tweets-pro'); ?></label><br />
-				<input type='text' name='date' id='date' size="20" value='<?php echo date_i18n('Y-m-d',(current_time( 'timestamp' )+300) ); ?>' />
+				<label for='wpt_date'><?php _e('Date','wp-tweets-pro'); ?></label><br />
+				<?php $date = date_i18n('Y-m-d',( current_time( 'timestamp' )+300 ) ); ?>
+				<input type='text' name='date' id='wpt_date' size="20" value='' data-value='<?php echo $date; ?>' />
 			</div>			
 			<div class='time'>
-				<label for='time'><?php _e('Time','wp-tweets-pro'); ?></label><br />
-				<input type='text' name='time' id='time' size="20" value='<?php echo date_i18n('h:i a',(current_time( 'timestamp' )+300) ); ?>' />
+				<label for='wpt_time'><?php _e('Time','wp-tweets-pro'); ?></label><br />
+				<input type='text' name='time' id='wpt_time' size="20" value='<?php echo date_i18n('h:i a',(current_time( 'timestamp' )+300) ); ?>' />
 			</div>
 			</div>
 			<?php $last = wp_get_recent_posts( array( 'numberposts'=>1, 'post_type'=>'post', 'post_status'=>'publish' ) ); $last_id = $last['0']['ID']; ?>
@@ -1620,22 +1621,21 @@ jQuery(document).ready( function($) {
 </script>
 ';
 	}
-	if ( $current_screen->id == 'wp-tweets-pro_page_wp-to-twitter-schedule' ) {
+	if ( $current_screen->id == 'wp-tweets-pro_page_wp-to-twitter-schedule' || $current_screen->base == 'post' ) {
 		
-	$js_format = apply_filters( 'wpt_js_date', 'yy-mm-dd' );
-	$js_time_format = apply_filters( 'wpt_js_time', 'h:i a' );		
-		
-	$script = "
+		$js_format = apply_filters( 'wpt_js_date', 'yyyy-mm-dd' );
+		$js_time_format = apply_filters( 'wpt_js_time', 'h:i a' );		
+		echo "
 <script>
 (function ($) {
 	$(function() {
-		$( '#date' ).pickadate({
+		$( '#wpt_date' ).pickadate({
 			format: '$js_format',
 			selectYears: true,
 			selectMonths: true,
 			editable: true
 		});
-		$( '#time' ).pickatime({
+		$( '#wpt_time' ).pickatime({
 			interval: 15,
 			format: '$js_time_format',
 			editable: true		
@@ -1855,7 +1855,7 @@ global $current_screen;
 }
 add_action( 'admin_head', 'wpt_add_styles' );
 add_action( 'admin_head', 'wpt_add_js' );
-add_action( 'admin_menu', 'wpt_enqueue_js' );
+add_action( 'admin_enqueue_scripts', 'wpt_enqueue_js' );
 if ( get_option('wpt_twitter_card') == 1 ) {
 	add_action( 'wp_head', 'wpt_twitter_card' );
 }
@@ -1920,7 +1920,12 @@ function wpt_get_excerpt_by_id( $post, $length = 15, $tags = '<a><em><strong>', 
 }
 
 function wpt_enqueue_js() {
-	if ( isset($_GET['page']) && $_GET['page'] == 'wp-to-twitter-schedule' ) {
+	global $current_screen;
+	if ( ( isset($_GET['page']) && $_GET['page'] == 'wp-to-twitter-schedule' ) || $current_screen->base == 'post' ) {
+		wp_enqueue_style( 'datepicker', plugins_url( 'js/pickadate/themes/default.css', __FILE__ ) );
+		wp_enqueue_style( 'datepicker-date', plugins_url( 'js/pickadate/themes/default.date.css', __FILE__ ) );
+		wp_enqueue_style( 'datepicker-time', plugins_url( 'js/pickadate/themes/default.time.css', __FILE__ ) );
+		wp_enqueue_script( 'pickadate', plugins_url( 'js/pickadate/picker.js', __FILE__ ) );
 		wp_enqueue_script('pickadate.date', plugins_url( 'js/pickadate/picker.date.js', __FILE__ ), array('jquery') );	
 		wp_enqueue_script('pickadate.time', plugins_url( 'js/pickadate/picker.time.js', __FILE__ ), array('jquery') );	
 	}
