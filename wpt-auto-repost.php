@@ -36,7 +36,7 @@ function wpt_auto_schedule() {
 		update_post_meta( $post, '_wpt_autoposted', '1' );
 	} else {
 		if ( $notify_user && is_email( $notify_user ) ) {
-			$log   = wpt_log( 'wpt_status_message', $post );
+			$log   = wpt_log( 'wpt_status_message', $post );	
 			wp_mail( $notify_user, __( 'Autoposted Tweet failed', 'wp-tweets-pro' ), sprintf( __( "Site failed to automatically post. Tweet attempted: %s", 'wp-tweets-pro' ) . "\n\n" . __( 'Error message from Twitter:', 'wp-tweets-pro' ) .' '. $log, $sentence  ) );
 		}
 	}

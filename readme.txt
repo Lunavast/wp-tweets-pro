@@ -26,7 +26,6 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 
 * Make aware of custom plug-ins such as randomizer/custom Tweet scheduler - allow post meta settings to override, disable fields, etc. [todo]
 * Option to customize Tweet schedule for each re-post (with customize text) [todo]
-* Add support to WPts PRO for compatibility with CoAuthors Plus [todo] [Note: CAP not updated for 1.5 years.]
 * Add custom Tweet options for taxonomy terms (custom template, custom URL, etc.) - Pending WordPress support for taxonomy meta. [todo]
 * Make all Tweet options fields persistent [todo]
 * Allow AJAX handler for Tweet Now button to pick up values in Tweet to box [todo]
@@ -34,7 +33,7 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 = 1.8.7 =
 
 * Bug fix: incorrect number of posts fetched as base selection for auto posting
-
+* Improved code documentation.
 
 = 1.8.6 =
 

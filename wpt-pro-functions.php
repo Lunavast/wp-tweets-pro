@@ -179,6 +179,16 @@ function wpt_update_pro_settings() {
 		}
 	}
 }
+
+/**
+ * Filter Tweet text to replace tag values with hashtags in title or post excerpt
+ *
+ * @param $string string Text of the field being searched
+ * @param $id integer post id
+ * @param $context string whether checking post content or title
+ *
+ * @return string Update text of field being searched.
+ */
 add_filter( 'wpt_status','wpt_filter_tweet', 10, 3 );
 function wpt_filter_tweet( $string, $id, $context ) {
 	if ( ( get_option( 'wpt_filter_title' ) == 1 && $context == 'title' ) || ( get_option( 'wpt_filter_post' ) == 1 && $context = 'post' ) ) {
@@ -218,7 +228,9 @@ function wpt_filter_tweet( $string, $id, $context ) {
 	return $string;
 }
 
-/* Ensure that newly edited split terms get same settings as old term. */
+/**
+ * Ensure that newly edited split terms get same settings as old term.
+ */
 add_action( 'split_shared_term', 'wpt_update_term_meta', 10, 4 );
 function wpt_update_term_meta( $old_term_id, $new_term_id, $term_taxonomy_id, $taxonomy ) {
 	$value = get_option( "wpt_taxonomy_$old_term_id" );
@@ -249,6 +261,9 @@ function wpt_blackout_period( $time, $acct, $i, $post_info ) {
 	return $time;
 }
 
+/**
+ * Save WP Tweets Pro meta values on post save
+ */
 add_filter( 'wpt_insert_post','wpt_insert_post_values', 10, 2 );
 function wpt_insert_post_values( $post, $id ) {
 	$update = false;
@@ -296,6 +311,9 @@ function wpt_insert_post_values( $post, $id ) {
 	return $update;
 }
 
+/**
+ * Setup custom post filters
+ */
 function wpt_setup_filters() {
 	$filters = get_option('wpt_filters');
 	$available = array( 'postTitle'=>'Post Title', 'postContent'=>'Post Content', 'postLink'=>'Permalink','shortUrl'=>'Shortened URL','postStatus'=>'Post Status','postType'=>'Post Type','id'=>'Post ID','authId'=>'Author ID','postExcerpt'=>'Post Excerpt');
@@ -347,6 +365,9 @@ function wpt_setup_filters() {
 	return $return;
 }
 
+/**
+ * Save custom post filters
+ */
 function wpt_build_filters() {
 	$filters = get_option('wpt_filters');
 	if ( isset($_POST['wpt_filters']) ) {
@@ -364,6 +385,9 @@ function wpt_build_filters() {
 	update_option( 'wpt_filters', $filters );
 }
 
+/**
+ * Apply custom post filters
+ */
 function wpt_filter_post_info( $post_info ) {
 	$filters = get_option( 'wpt_filters' );
 	if ( is_array( $filters ) ) {
@@ -390,6 +414,9 @@ function wpt_filter_post_info( $post_info ) {
 	return false;
 }
 
+/**
+ * Get and display list of scheduled Tweets
+ */
 function wpt_get_scheduled_tweets() {
 	$schedule = wpt_schedule_custom_tweet( $_POST );
 	$deletions = ( isset( $_POST['delete-tweets'] ) && isset( $_POST['delete-list'] ) ) ? $_POST['delete-list'] : array();
@@ -549,6 +576,9 @@ function wpt_get_scheduled_tweets() {
 <?php
 }
 
+/**
+ * Schedule a custom Tweet
+ */
 function wpt_schedule_custom_tweet( $post ) {
 	$offset = (60*60*get_option('gmt_offset'));
 	if ( isset($post['submit-type']) && $post['submit-type'] == 'schedule-tweet' ) { 
@@ -584,15 +614,9 @@ function wpt_schedule_custom_tweet( $post ) {
 	}
 }
 
-/* Out of use as of 1.7.2
-function wpt_tweet_links( $ts, $auth, $rt, $post_ID, $hash ) {
-	$auth = ( !$auth )?0:$auth;
-	$unschedule = wp_nonce_url( admin_url( "admin.php?page=wp-to-twitter-schedule&amp;wpt=delete&amp;ts=$ts&amp;auth=$auth&amp;rt=$rt&amp;rp=$post_ID&amp;hash=$hash" ), 'wpt_unschedule_tweet' );
-	echo "<a href='$unschedule'>Delete</a>";
-}
-*/
-
-// get list of active post types, generate control to select which post type to view tweets for.
+/**
+ * get list of active post types, generate control to select which post type to view tweets for.
+ */
 function wpt_get_past_tweets() {
 	$settings = get_option('wpt_post_types');
 	$per_page = apply_filters( 'wpt_past_tweets_per_page', 50 );
@@ -709,6 +733,9 @@ function wpt_get_past_tweets() {
 	</div><?php
 }
 
+/**
+ * Get list of Tweet errors
+ */
 function wpt_get_failed_tweets() {
 	$settings = get_option('wpt_post_types');
 	$per_page = apply_filters( 'wpt_failed_tweets_per_page', 50 );
@@ -821,6 +848,9 @@ function wpt_get_failed_tweets() {
 	</div><?php
 }
 
+/**
+ * Add WP Tweets Pro post meta values into post_info array
+ */
 add_filter( 'wpt_post_info', 'wpt_insert_post_info',10,2 );
 function wpt_insert_post_info( $values, $post_ID ) {
 	if ( is_array( $values ) ) {
@@ -848,8 +878,9 @@ function wpt_insert_post_info( $values, $post_ID ) {
 	return $values;
 }
 
-// 		$auth_repeat = ( get_user_meta( $values['authId'], 'wpt_retweet_repeat', true ) != '' ) ? get_user_meta( $values['authId'], 'wpt_retweet_repeat', true ) : false;
-
+/**
+ * Test how many times this user is allowed to repost.
+ */
 add_filter( 'wpt_allow_reposts', 'wpt_test_user_reposts', 10, 4 );
 function wpt_test_user_reposts( $continue, $rt, $post_ID, $auth_ID ) {
 	if ( $auth_ID ) {
@@ -864,6 +895,9 @@ function wpt_test_user_reposts( $continue, $rt, $post_ID, $auth_ID ) {
 	return $continue;
 }
 
+/**
+ * Check license validity.
+ */
 function wpt_check_license( $key=false ) {
 	global $wptp_version;
 	if ( !$key ) {
@@ -889,6 +923,9 @@ function wpt_check_license( $key=false ) {
 	return false;
 }
 
+/**
+ * Add user management columns if users are enabled.
+ */
 if ( get_option( 'jd_individual_twitter_users' ) == '1' ) {
 	add_filter('manage_users_columns', 'wpt_add_column');
 	function wpt_add_column($columns) {
@@ -909,9 +946,9 @@ if ( get_option( 'jd_individual_twitter_users' ) == '1' ) {
 	}
 }
 
-function wpt_write_css() {
-}
-
+/**
+ * WP Tweets PRO admin menu
+ */
 add_action( 'admin_menu', 'wpt_pro_menu' );
 // Function to deal with adding the WP Tweets PRO menus
 function wpt_pro_menu() {
@@ -936,10 +973,16 @@ function wpt_pro_menu() {
 	}
 }
 
+/**
+ * Notify users who have disabled or uninstalled WP to Twitter
+ */
 function wpt_warning() {
 	echo "<div class='notice error'><p>".__('<strong>WP Tweets PRO</strong> requires that the current version of WP to Twitter is also activated. Please re-activate or update WP to Twitter! Thank you!','wp-tweets-pro')."</p></div>";
 }
 
+/**
+ * Save user settings & connect user to Twitter
+ */
 add_filter( 'wpt_save_user','wpt_update_user_oauth',10,2 );
 function wpt_update_user_oauth( $edit_id, $post ) {
 	if ( function_exists( 'wpt_pro_exists' ) ) {
@@ -968,6 +1011,9 @@ function wpt_update_user_oauth( $edit_id, $post ) {
 	return $edit_id; 
 }
 
+/**
+ * Save user settings
+ */
 add_filter( 'wpt_save_user', 'wpt_update_twitter_user_fields', 10, 2 );
 function wpt_update_twitter_user_fields( $edit_id, $post ) {
 	if ( function_exists( 'wpt_pro_exists' ) ) {
@@ -979,6 +1025,9 @@ function wpt_update_twitter_user_fields( $edit_id, $post ) {
 	return $edit_id; 
 }
 
+/**
+ * Add Twitter user settings to user account.
+ */
 add_filter( 'wpt_twitter_user_fields','wpt_twitter_user_fields' );
 function wpt_twitter_user_fields( $edit_id ) {
 	// show form fields on user profile
@@ -1018,6 +1067,15 @@ function wpt_filter_user_text( $text, $status, $alt=false ) {
 	return $text;
 }
 
+
+/**
+ * Handle scheduled Tweets
+ * 
+ * @param $id integer Author ID
+ * @param $sentence string Tweet text
+ * @param $rt integer repost count
+ * @param $post_ID integer post ID
+ */
 add_action('wpt_schedule_tweet_action', 'wpt_schedule_tweet', 10, 4);
 function wpt_schedule_tweet( $id, $sentence, $rt, $post_ID ) {
 	wpt_mail( "Scheduled Action Happening: #$id","$sentence, $rt, $post_ID" ); // DEBUG
@@ -1027,6 +1085,9 @@ function wpt_schedule_tweet( $id, $sentence, $rt, $post_ID ) {
 	$post = jd_doTwitterAPIPost( $sentence, $id, $post_ID, $media );
 }
 
+/**
+ * Handle individual repost's media settings
+ */
 add_filter( 'wpt_scheduled_media', 'wpt_filter_scheduled_media', 10, 3 );
 function wpt_filter_scheduled_media( $media, $post_ID, $rt ) {
 	switch ( $rt ) {
@@ -1047,6 +1108,9 @@ function wpt_filter_scheduled_media( $media, $post_ID, $rt ) {
 	return $return;
 }
 
+/**
+ * If this post is configured to skip media, skip media.
+ */
 add_filter( 'wpt_upload_media', 'wpt_filter_upload_media', 10, 2 );
 function wpt_filter_upload_media( $media, $post_ID ) {
 	$skip = get_post_meta( $post_ID, '_wpt_image', true );
@@ -1056,6 +1120,9 @@ function wpt_filter_upload_media( $media, $post_ID ) {
 	return $media;
 }
 
+/**
+ * Setup individual fields for each custom Tweet text field.
+ */
 add_filter( 'wpt_custom_retweet_fields', 'wpt_retweet_custom_tweets', 10, 2 );
 function wpt_retweet_custom_tweets( $return, $post_ID=false ) {
 	$repeat = ( get_post_meta( $post_ID, '_wpt_retweet_repeat', true ) ) ? get_post_meta( $post_ID, '_wpt_retweet_repeat', true ) : get_option( 'wpt_retweet_repeat' );
@@ -1081,6 +1148,9 @@ function wpt_retweet_custom_tweets( $return, $post_ID=false ) {
 	return $return;
 }
 
+/**
+ * Form to input WP Tweets PRO settings in WP to Twitter meta box
+ */
 function wpt_schedule_values( $post_id, $display='normal' ) {
 	$delay = get_post_meta( $post_id, '_wpt_delay_tweet', true ); 
 	$retweet = get_post_meta( $post_id, '_wpt_retweet_after', true );
@@ -1170,7 +1240,9 @@ if ( get_option( 'wpt_license_valid' ) != 'true' ) {
 	add_action( 'admin_notices', create_function( '', "if ( ! current_user_can( 'manage_options' ) ) { return; } else { echo \"<div class='error'><p>$message</p></div>\";}" ) );
 }
 
-// connect or disconnect form
+/**
+ * WP Tweets PRO settings
+ */
 function wpt_pro_functions() {
 	wpt_update_pro_settings();
 	wpt_build_filters();
@@ -1456,6 +1528,9 @@ function wpt_pro_functions() {
 	echo "</div>";
 }
 
+/**
+ * Provide feedback about user accounts, when features are enabled that depend on that option.
+ */
 function wpt_notes() {
 	$is_enabled = get_option( 'jd_individual_twitter_users' );
 	if ( $is_enabled ) { 
@@ -1477,6 +1552,9 @@ function wpt_notes() {
 	</div>' );
 }
 
+/**
+ * Get list of users authorized to post to Twitter
+ */
 function wpt_authorized_users( $selected=array() ) {
 	global $user_ID;
 	$users = get_option( 'wpt_authorized_users' );
@@ -1524,6 +1602,9 @@ function wpt_authorized_users( $selected=array() ) {
 	return $select;
 }
 
+/**
+ * Add custom JS 
+ */
 function wpt_add_js() {
 global $current_screen;
 	if ( $current_screen->id == 'wp-tweets-pro_page_wp-to-twitter-tweets' || $current_screen->id == 'wp-tweets-pro_page_wp-to-twitter-errors' ) {
@@ -1540,16 +1621,34 @@ jQuery(document).ready( function($) {
 ';
 	}
 	if ( $current_screen->id == 'wp-tweets-pro_page_wp-to-twitter-schedule' ) {
-		echo '
-<script type="text/javascript">
-jQuery(document).ready(function($) {
-	$("#date").calendricalDate();
-	$("#time").calendricalTime();
-});
-</script>';	
+		
+	$js_format = apply_filters( 'wpt_js_date', 'yy-mm-dd' );
+	$js_time_format = apply_filters( 'wpt_js_time', 'h:i a' );		
+		
+	$script = "
+<script>
+(function ($) {
+	$(function() {
+		$( '#date' ).pickadate({
+			format: '$js_format',
+			selectYears: true,
+			selectMonths: true,
+			editable: true
+		});
+		$( '#time' ).pickatime({
+			interval: 15,
+			format: '$js_time_format',
+			editable: true		
+		});
+	})
+})(jQuery);
+</script>";	
 	}
 }
 
+/**
+ * Define custom retweet text
+ */
 add_filter( 'wpt_set_retweet_text', 'wpt_set_retweet_text', 10, 2 );
 function wpt_set_retweet_text( $template, $rt ) {
 	$prepend = $append = '';
@@ -1822,7 +1921,8 @@ function wpt_get_excerpt_by_id( $post, $length = 15, $tags = '<a><em><strong>', 
 
 function wpt_enqueue_js() {
 	if ( isset($_GET['page']) && $_GET['page'] == 'wp-to-twitter-schedule' ) {
-		wp_enqueue_script('jquery.calendrical',plugins_url( 'js/jquery.calendrical.js', __FILE__ ), array('jquery') );	
+		wp_enqueue_script('pickadate.date', plugins_url( 'js/pickadate/picker.date.js', __FILE__ ), array('jquery') );	
+		wp_enqueue_script('pickadate.time', plugins_url( 'js/pickadate/picker.time.js', __FILE__ ), array('jquery') );	
 	}
 }
 
