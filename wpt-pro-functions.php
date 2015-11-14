@@ -3,7 +3,7 @@
 Plugin Name: WP Tweets PRO
 Plugin URI: https://www.joedolson.com/wp-tweets-pro/
 Description: Adds great new features to extend WP to Twitter. 
-Version: 1.8.6
+Version: 1.8.7
 Author: Joseph Dolson
 Author URI: https://www.joedolson.com/
 */
@@ -26,7 +26,7 @@ Author URI: https://www.joedolson.com/
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 global $wptp_version;
-$wptp_version = '1.8.6';
+$wptp_version = '1.8.7';
 load_plugin_textdomain( 'wp-tweets-pro', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' ); 
 // response to settings updates
 
