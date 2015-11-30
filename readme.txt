@@ -30,6 +30,17 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 * Make all Tweet options fields persistent [todo]
 * Allow AJAX handler for Tweet Now button to pick up values in Tweet to box [todo]
 
+= 1.9.0 =
+
+12/7/2015
+
+* Updated to reflect the deprecation of Twitter Photo cards (mapped to summary_large_image)
+* New feature: create Tweets on a schedule; daily, weekly, monthly, etc.
+* New feature: support for WordPress shortcodes in Tweets.
+* Stop printing styles into <head>
+* Remove some unneeded instructions.
+* 
+
 = 1.8.7 =
 
 * Bug fix: incorrect number of posts fetched as base selection for auto posting

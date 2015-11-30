@@ -3,7 +3,7 @@
 Plugin Name: WP Tweets PRO
 Plugin URI: https://www.joedolson.com/wp-tweets-pro/
 Description: Adds great new features to extend WP to Twitter. 
-Version: 1.8.7
+Version: 1.9.0
 Author: Joseph Dolson
 Author URI: https://www.joedolson.com/
 */
@@ -26,9 +26,16 @@ Author URI: https://www.joedolson.com/
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 global $wptp_version;
-$wptp_version = '1.8.7';
+$wptp_version = '1.9.0';
 load_plugin_textdomain( 'wp-tweets-pro', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' ); 
 // response to settings updates
+
+
+register_deactivation_hook(__FILE__, 'wpt_deactivation');
+
+function wpt_deactivation() {
+	wp_clear_scheduled_hook( 'wpt_recurring_tweets' );
+}
 
 include( plugin_dir_path( __FILE__ ) . 'wpt-auto-repost.php' );
 
@@ -285,7 +292,7 @@ function wpt_insert_post_values( $post, $id ) {
 		$update = update_post_meta( $id, '_wpt_retweet_after', $wpt_retweet_after );
 	}
 	if ( isset( $post[ '_wpt_twitter_card' ] ) && $post['_wpt_twitter_card'] != '' ) {
-		$wpt_twitter_card = ( $post['_wpt_twitter_card'] == 'photo' ) ? 'photo' : ( $post['_wpt_twitter_card'] == 'summary_large_image' ) ? 'summary_large_image' : 'summary';
+		$wpt_twitter_card = ( $post['_wpt_twitter_card'] == 'photo' || $post['_wpt_twitter_card'] == 'summary_large_image' ) ? 'summary_large_image' : 'summary';
 		$update = update_post_meta( $id, '_wpt_twitter_card', $wpt_twitter_card );
 	}
 	if ( isset( $post[ '_wpt_cotweet' ] ) && $post['_wpt_cotweet'] == 'on' ) {
@@ -438,25 +445,29 @@ function wpt_get_scheduled_tweets() {
 		
 		<h3><?php _e('Your Scheduled Tweets','wp-tweets-pro'); ?></h3>
 		<div class="inside">
-	<p><?php _e('This is a list of tweets which are scheduled to be sent to Twitter for posts which have already been published.','wp-tweets-pro'); ?>
 	<form method="post" action="<?php echo admin_url( 'admin.php?page=wp-to-twitter-schedule&action=delete' ); ?>">
 	<table class="widefat fixed">
 		<thead>
 			<tr>
-				<th scope="col"><?php _e('Tweet on <em>date</em> at <em>time</em>', 'wp-tweets-pro'); ?></th>
-				<th scope="col" style="width:50%;"><?php _e('Tweet', 'wp-tweets-pro'); ?></th>
-				<th scope="col"><?php _e('Author','wp-tweets-pro'); ?></th>
-				<th scope="col"><?php _e('Options', 'wp-tweets-pro'); ?></th>
+				<th scope="col"><?php _e('Scheduled', 'wp-tweets-pro'); ?></th>
+				<th scope="col" style="width:60%;"><?php _e('Tweet', 'wp-tweets-pro'); ?></th>
+				<th scope="col"><?php _e('Account','wp-tweets-pro'); ?></th>
+				<th scope="col"><?php _e('Delete', 'wp-tweets-pro'); ?></th>
 			</tr>
 		</thead>
 		<tbody>
-			<?php $offset = (60*60*get_option('gmt_offset'));
+			<?php $offset = ( 60*60*get_option( 'gmt_offset' ) );
+			$class = '';
 			foreach ( $cron as $timestamp => $cronhooks ) { 
 				foreach ( (array) $cronhooks as $hook => $events ) { 
 					$i = 0; foreach ( (array) $events as $event ) { 
-						if ( $hook == 'wpt_schedule_tweet_action' ) {
+						if ( $hook == 'wpt_schedule_tweet_action' || $hook == 'wpt_recurring_tweets' ) {
 							$i++; 
-							if ( count( $event[ 'args' ] ) ) { 
+							if ( $hook == 'wpt_recurring_tweets' ) {
+								$class = 'is_recurring';
+								$schedule = ', '.$event['schedule'];
+							}
+							if ( count( $event[ 'args' ] ) ) {
 								$auth = $event['args']['id'];
 								$sentence = $event['args']['sentence'];	
 								$rt = $event['args']['rt'];
@@ -465,10 +476,10 @@ function wpt_get_scheduled_tweets() {
 							$id = md5( $timestamp . $auth . $rt . $post_ID . $sentence );
 							
 							if ( ( isset( $_GET['wpt'] ) && $_GET['wpt'] == 'clear' ) && ( isset( $_GET['_wpnonce'] ) && wp_verify_nonce( $_GET['_wpnonce'] ) ) ) {
-								wp_unschedule_event( $timestamp, 'wpt_schedule_tweet_action', array( 'id'=>$auth,'sentence'=>$sentence, 'rt'=>$rt,'post_id'=>$post_ID ) );
+								wp_unschedule_event( $timestamp, $hook, array( 'id'=>$auth,'sentence'=>$sentence, 'rt'=>$rt,'post_id'=>$post_ID ) );
 								echo "<div id='message' class='updated'><p>".sprintf(__('Tweet for %1$s has been deleted.','wp-tweets-pro'),date( $date_format, ($timestamp+$offset) ))."</p></div>";
 							} else if ( in_array( $id, $deletions ) ) {
-								wp_unschedule_event( $timestamp, 'wpt_schedule_tweet_action', array( 'id'=>$auth,'sentence'=>$sentence,'rt'=>$rt,'post_id'=>$post_ID ) );
+								wp_unschedule_event( $timestamp, $hook, array( 'id'=>$auth,'sentence'=>$sentence,'rt'=>$rt,'post_id'=>$post_ID ) );
 								echo "<div id='message' class='updated'><p>".__('Scheduled Tweet has been deleted.','wp-tweets-pro')."</p></div>";							
 							} else {
 								$time_diff = human_time_diff( $timestamp+$offset, time()+$offset );							
@@ -484,12 +495,19 @@ function wpt_get_scheduled_tweets() {
 											}
 										}
 									}
-								} 
+								}  
+								if ( !$auth ) { 
+									$account = '@'.get_option( 'wtt_twitter_username' ); 
+									$link = 'https://twitter.com/' . get_option( 'wtt_twitter_username' ); 
+								} else { 
+									$account = '@'.get_user_meta( $auth, 'wtt_twitter_username',true ); 
+									$link = 'https://twitter.com/' . get_user_meta( $auth, 'wtt_twitter_username',true );
+								}
 							?>
-							<tr>
-								<th scope="row"><?php echo date_i18n( $date_format, ($timestamp+$offset) ); ?><br /><small>(~<?php echo $time_diff; ?>)</small></th>
+							<tr class='<?php echo $class; ?>'>
+								<th scope="row"><?php echo date_i18n( $date_format, ( $timestamp + $offset ) ); ?><br /><small>(~<?php echo $time_diff.$schedule; ?>)</small></th>
 								<td id='sentence-<?php echo $id; ?>'><strong><?php echo "$sentence $image"; ?></td>
-								<td><?php if ( !$auth ) { echo '@'.get_option( 'wtt_twitter_username' ); } else { echo '@'.get_user_meta( $auth, 'wtt_twitter_username',true ); } ?></td>
+								<td><a href='<?php echo $link; ?>'><?php echo $account; ?></a></td>
 								<td><input type='checkbox' id='checkbox-<?php echo $id; ?>' value='<?php echo $id; ?>' name='delete-list[]' aria-describedby='sentence-<?php echo $id; ?>' /> <label for='checkbox-<?php echo $id; ?>'><?php _e( 'Delete', 'wp-tweets-pro' ); ?></label></td>
 							</tr><?php 
 							} 
@@ -511,13 +529,10 @@ function wpt_get_scheduled_tweets() {
 		<h3><?php _e('Schedule a Tweet','wp-tweets-pro'); ?></h3>
 		<div class="inside schedule" id="wp2t">	
 		<?php $admin_url = admin_url('admin.php?page=wp-to-twitter-schedule'); ?>
-		<p>
-		<?php _e('Tweets must be associated with a post ID; running the WP to Twitter filters for template tags and other custom fields is optional.','wp-tweets-pro'); ?>
-		</p>
 		<form method="post" action="<?php echo $admin_url; ?>">
 		<div><input type="hidden" name="submit-type" value="schedule-tweet" /><input type="hidden" name='author' id='author' value='<?php echo get_current_user_id(); ?>' /></div>
 		<?php $nonce = wp_nonce_field('wp-to-twitter-nonce', '_wpnonce', true, false).wp_referer_field(false);  echo "<div>$nonce</div>"; ?>	
-			<p class='jtw'>
+			<p style='position: relative'>
 				<label for='jtw'><?php _e('Tweet Text','wp-tweets-pro'); ?></label> <input type="checkbox" value='on' id='filter' name='filter' checked='checked' /> <label for='filter'><?php _e('Run WP to Twitter filters on this Tweet','wp-tweets-pro'); ?></label><br />
 				<textarea id='jtw' name='tweet' rows='3' cols='70'><?php echo ( isset($schedule['tweet']) ) ? stripslashes($schedule['tweet'] ) : ''; ?></textarea>
 			</p>
@@ -531,6 +546,21 @@ function wpt_get_scheduled_tweets() {
 				<label for='wpt_time'><?php _e('Time','wp-tweets-pro'); ?></label><br />
 				<input type='text' name='time' id='wpt_time' size="20" value='<?php echo date_i18n('h:i a',(current_time( 'timestamp' )+300) ); ?>' />
 			</div>
+			<p class='recurrence'>
+				<label for='wpt_recurrence'><?php _e( 'Frequency', 'wp-tweets-pro' ); ?></label>
+				<select name='wpt_recurrence' id='wpt_recurrence'>
+					<option value=''><?php _e( 'Once', 'wp-tweets-pro' ); ?></option>
+					<?php
+						$schedules = wp_get_schedules();
+						$frequency = isset( $_GET['schedule'] ) ? '' : '';
+						foreach ( $schedules as $key => $schedule ) {
+							if ( $key != 'four-hours' && $key != 'eight-hours' && $key != 'sixteen-hours' ) {
+								echo "<option value='$key'" . selected( $frequency, $key ) . ">$schedule[display]</option>";
+							}
+						}
+					?>					
+				</select>
+			</p>
 			</div>
 			<?php $last = wp_get_recent_posts( array( 'numberposts'=>1, 'post_type'=>'post', 'post_status'=>'publish' ) ); $last_id = $last['0']['ID']; ?>
 			<p>
@@ -592,6 +622,7 @@ function wpt_schedule_custom_tweet( $post ) {
 		$encoding = get_option('blog_charset');
 		if ( $encoding == '' ) { $encoding = 'UTF-8'; }
 		$sentence = ( isset($post['tweet'] ) ) ? html_entity_decode( stripcslashes($post['tweet']), ENT_COMPAT, $encoding  ) : '';
+		$orig_sentence = $sentence;
 		$post_id = ( isset($post['post'] ) )?(int) $post['post']:'';
 		if ( isset( $post['filter'] ) && $post['filter'] == 'on' ) {
 			$post_info = wpt_post_info( $post_id );
@@ -605,14 +636,40 @@ function wpt_schedule_custom_tweet( $post ) {
 		} else if ( !$time ) {
 			return array( 'message'=>"<div class='error'><p>".__('The time provided was either invalid or in the past.','wp-tweets-pro')."</p></div>", 'tweet'=>$sentence, 'post'=>$post_id ); ; 
 		} else {
-			wp_schedule_single_event(
-				$time, 
-				'wpt_schedule_tweet_action', 
-				array( 'id'=>$auth, 'sentence'=>$sentence, 'rt'=>0, 'post_id'=>$post_id ) 
-			);
+			if ( !isset( $_POST['wpt_recurrence'] ) || $_POST['wpt_recurrence'] == '' ) {
+				wp_schedule_single_event(
+					$time, 
+					'wpt_schedule_tweet_action', 
+					array( 'id'=>$auth, 'sentence'=>$sentence, 'rt'=>0, 'post_id'=>$post_id ) 
+				);
+			} else {
+				$recurrence = sanitize_text_field( $_POST['wpt_recurrence'] );
+				wp_schedule_event( $time, $recurrence, 'wpt_recurring_tweets', array( 'id'=>$auth, 'sentence'=>$orig_sentence, 'rt'=>0, 'post_id'=>$post_id ) ); 
+			}
 			return array( 'message'=>"<div class='updated'><p>".__('Your custom Tweet has been scheduled.','wp-tweets-pro')."</p></div>", 'tweet'=>$sentence, 'post'=>$post_id ); ; 					
 		}
 	}
+}
+
+add_filter( 'wpt_tweet_sentence', 'wpt_process_shortcodes', 10, 2 );
+function wpt_process_shortcodes( $tweet, $post_ID ) {
+	return do_shortcode( $tweet );
+}
+
+add_action( 'wpt_recurring_tweets', 'wpt_recurring_tweet_handler', 10, 4 );
+function wpt_recurring_tweet_handler( $auth, $sentence, $rt, $post_id ) {
+	wpt_mail( "Recurring Tweet Happening: #$id","$sentence, $rt, $post_ID" ); // DEBUG
+	
+	// set up sentence
+	$post_info = wpt_post_info( $post_id );
+	$sentence = jd_truncate_tweet( $sentence, $post_info, $post_id, false, $auth );
+
+	// set up media
+	$media = ( ( get_option( 'wpt_media' ) == '1' ) && ( has_post_thumbnail( $post_ID ) || wpt_post_attachment( $post_ID ) ) ) ? true : false;
+	$media = apply_filters( 'wpt_scheduled_media', $media, $post_ID, $rt ); // filter based on post ID	
+	
+	// send Tweet
+	$tweet = jd_doTwitterAPIPost( $sentence, $auth, $post_ID );
 }
 
 /**
@@ -692,7 +749,6 @@ function wpt_get_past_tweets() {
 					</a>
 				</p>
 			<?php } ?>
-	<p><?php _e('This is a list of tweets WP Tweets PRO has sent or attempted to send to Twitter. WP Tweets PRO started tracking this with version 2.2.9; earlier tweets will not be shown.','wp-tweets-pro'); ?>
 	<?php echo $types; ?>
 	<?php
 		$items = $posts->found_posts;		
@@ -808,7 +864,6 @@ function wpt_get_failed_tweets() {
 					<a href="<?php echo $url; ?>"><?php _e('Clear failed Tweets for this post type','wp-tweets-pro'); ?></a>
 				</p>
 			<?php } ?>	
-	<p><?php printf( __('This is a list of tweets WP Tweets PRO failed to send to Twitter with the reported reason for the failure. Data gathered starting with WP to Twitter version 2.4.7. Each page shows the failed tweets in that set of %d posts.','wp-tweets-pro'), $per_page ); ?>
 	<?php echo $types; ?>
 	<?php
 		//$items = wp_count_posts( $post_type )->publish;
@@ -1174,12 +1229,12 @@ function wpt_schedule_values( $post_id, $display='normal' ) {
 	<input type='hidden' name='_wpt_noautopost' value='<?php echo $noautopost; ?>' />
 	<?php } else { ?>
 <p>
-<label for="wtd"><?php _e("Delay for <em>x</em> minutes:", 'wp-tweets-pro'); ?></label> <input type="text" name="_wpt_delay_tweet" size="3" value="<?php if ( $delay != false ) { echo $delay; } else { echo get_option('wpt_delay_tweets'); } ?>" id="wtd" /> 
+<label for="wtd"><?php _e("Delay (minutes)", 'wp-tweets-pro'); ?></label> <input type="text" name="_wpt_delay_tweet" size="3" value="<?php if ( $delay != false ) { echo $delay; } else { echo get_option('wpt_delay_tweets'); } ?>" id="wtd" /> 
 <input type='checkbox' value='on' name='wpt-no-delay' id='wpt-no-delay' /> <label for='wpt-no-delay'><?php _e('No delay','wp-tweets-pro'); ?></label>
 </p>
 <p>
-<label for="wtr"><?php _e("Re-post after <em>x</em> hours:", 'wp-tweets-pro'); ?></label> <input type="text" name="_wpt_retweet_after" size="3" value="<?php if ( $retweet != false ) { echo $retweet; } else { echo get_option('wpt_retweet_after'); } ?>" id="wtr" /> 
-<input type='checkbox' value='on' name='wpt-no-repost' id='wpt-no-repost' /> <label for='wpt-no-repost'><?php _e('No re-post','wp-tweets-pro'); ?></label>
+<label for="wtr"><?php _e("Repost (hours)", 'wp-tweets-pro'); ?></label> <input type="text" name="_wpt_retweet_after" size="3" value="<?php if ( $retweet != false ) { echo $retweet; } else { echo get_option('wpt_retweet_after'); } ?>" id="wtr" /> 
+<input type='checkbox' value='on' name='wpt-no-repost' id='wpt-no-repost' /> <label for='wpt-no-repost'><?php _e('No repost','wp-tweets-pro'); ?></label>
 </p>
 <?php if ( get_option( 'jd_individual_twitter_users' ) == 1 ) { ?>
 <p>
@@ -1350,7 +1405,6 @@ function wpt_pro_functions() {
 						<label for="wpt_twitter_card_type">'.__('Default Twitter Card type', 'wp-tweets-pro').'</label>					
 						<select name="wpt_twitter_card_type" id="wpt_twitter_card_type" />
 							<option value="summary"' . selected( $wpt_twitter_card_type, 'summary', false ) . '>' . __( 'Summary', 'wp-tweets-pro' ) . '</option>
-							<option value="photo"' . selected( $wpt_twitter_card_type, 'photo', false ) . '>' . __( 'Photo', 'wp-tweets-pro' ) . '</option>
 							<option value="summary_large_image"' . selected( $wpt_twitter_card_type, 'summary_large_image', false ) . '>' . __( 'Summary, Large Image', 'wp-tweets-pro' ) . '</option>
 						</select>
 					</p>					
@@ -1808,52 +1862,14 @@ function wpt_comment_column( $column, $comment_ID ) {
 }
 
 function wpt_add_styles() {
-global $current_screen;
-	if ( $current_screen->id == 'profile' ) {
-		echo '
-<style type="text/css">
-.wpt-profile ul { margin-left: 3em}
-.wpt-profile li { list-style-type: disc}
-.wpt-profile .tokens label { display: block}
-.notes { width: 240px; float: right; margin-left: 30px; border-left: 1px solid #ddd; padding-left: 10px}
-</style>
-';
-	}
-	if ( $current_screen->id == 'wp-tweets-pro_page_wp-to-twitter-tweets' || $current_screen->id == 'wp-tweets-pro_page_wp-to-twitter-errors' ) {
-		echo '
-<style type="text/css">
-.wrap #wpt th > a { text-decoration: none}
-.wrap #wpt th > a:hover, .wrap #wpt .post_title > a:focus { text-decoration: underline}
-.wrap #wpt li { list-style-type: disc; margin-left: 2em; font-size: .85em}
-#wp-to-twitter table label { position: absolute; left: -999em; }
-.post-types { margin: 0!important; padding: 0; }
-.post-types li { display: inline; list-style-type: none; }
-.post-types li a { padding: 5px; background: #fff; margin: 0 1px 0 0; border: 1px solid #ccc; border-radius: 3px;}
-.post-types li a:hover, .post-types li a:focus { border: 1px solid; }
-</style>
-';
-	}
-	if ( $current_screen->id == 'toplevel_page_wp-tweets-pro' ) {
-		echo '
-<style type="text/css">
-#wp-to-twitter table label { position: absolute; left: -999em; }
-</style>
-';
-	}
-	if ( $current_screen->id == 'wp-tweets-pro_page_wp-to-twitter-schedule' ) {
-		echo '
-<link type="text/css" rel="stylesheet" href="'.plugins_url( 'js/calendrical.css', __FILE__ ).'" />
-<style type="text/css">
-#jtw { width: 98%; font-size: 1.5em; margin-top: 2px; }
-.columns {-moz-column-count: 3;-moz-column-gap: 20px;-webkit-column-count: 3;-webkit-column-gap: 20px;column-count: 3;column-gap: 20px;}
-#wp2t .datetime { position: relative; }
-#wp2t .date { width: 160px; }
-#wp2t .time { position: absolute; left: 180px; top: 0; }
-</style>
-';
+	global $current_screen;
+	wp_register_style( 'wp-tweets-pro', plugins_url( 'css/style.css', __FILE__ ) );
+	$cs = $current_screen->id;
+	if ( $cs == 'profile' || $cs == 'wp-tweets-pro_page_wp-to-twitter-tweets' || $cs == 'wp-tweets-pro_page_wp-to-twitter-errors' || $cs == 'toplevel_page_wp-tweets-pro' || $cs == 'wp-tweets-pro_page_wp-to-twitter-schedule' ) {
+		wp_enqueue_style( 'wp-tweets-pro' );
 	}		
 }
-add_action( 'admin_head', 'wpt_add_styles' );
+add_action( 'admin_enqueue_scripts', 'wpt_add_styles' );
 add_action( 'admin_head', 'wpt_add_js' );
 add_action( 'admin_enqueue_scripts', 'wpt_enqueue_js' );
 if ( get_option('wpt_twitter_card') == 1 ) {
@@ -1861,9 +1877,10 @@ if ( get_option('wpt_twitter_card') == 1 ) {
 }
 
 // determine type of twitter card to show
+// photo cards deprecated by Twitter July 3, 2015
 function wpt_twitter_card_type( $id ) {
 	if ( get_post_meta( $id, '_wpt_twitter_card', true ) == 'photo' &&  wp_get_attachment_url( get_post_thumbnail_id( $id ) ) ) {
-		return 'photo'; 
+		return 'summary_large_image'; 
 	} else if ( get_post_meta( $id, '_wpt_twitter_card', true ) == 'summary_large_image' && wp_get_attachment_url( get_post_thumbnail_id( $id ) ) ) {
 		return 'summary_large_image';	
 	} else {
@@ -1871,8 +1888,8 @@ function wpt_twitter_card_type( $id ) {
 		$content = $post->post_content;
 		$length_limit = ( get_option( 'wpt_toggle_card' ) ) ? get_option( 'wpt_toggle_card' ) : 0;
 		if ( strlen($content) <= $length_limit && wp_get_attachment_url( get_post_thumbnail_id( $id ) ) ) {
-			update_post_meta( $id, '_wpt_twitter_card', 'photo' );
-			return 'photo'; 
+			update_post_meta( $id, '_wpt_twitter_card', 'summary_large_image' );
+			return 'summary_large_image'; 
 		}
 	}
 	return 'summary';
