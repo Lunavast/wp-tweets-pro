@@ -16,8 +16,16 @@
 
 #jtw { width: 98%; font-size: 1.5em; margin-top: 2px; }
 .columns {-moz-column-count: 3;-moz-column-gap: 20px;-webkit-column-count: 3;-webkit-column-gap: 20px;column-count: 3;column-gap: 20px;}
-#wp2t .datetime { position: relative; }
-#wp2t .date { width: 160px; }
-#wp2t .time { position: absolute; left: 180px; top: 0; }
+#wp2t .datetime { background: rgba( 0,0,0,.05 ); padding: .5em; }
+#wp2t .datetime .date, #wp2t .datetime .time, #wp2t .datetime .recurrence {
+	width: 32%;
+	display: inline-block;
+	padding-right: .25em;
+	vertical-align: top;
+}
+
+#wp2t input[type=text], #wp2t select {
+	width: 99%;
+}
 
 .is_recurring { background: rgba( 25, 0, 25, .05 ); }

@@ -546,7 +546,7 @@ function wpt_get_scheduled_tweets() {
 				<label for='wpt_time'><?php _e('Time','wp-tweets-pro'); ?></label><br />
 				<input type='text' name='time' id='wpt_time' size="20" value='<?php echo date_i18n('h:i a',(current_time( 'timestamp' )+300) ); ?>' />
 			</div>
-			<p class='recurrence'>
+			<div class='recurrence'>
 				<label for='wpt_recurrence'><?php _e( 'Frequency', 'wp-tweets-pro' ); ?></label>
 				<select name='wpt_recurrence' id='wpt_recurrence'>
 					<option value=''><?php _e( 'Once', 'wp-tweets-pro' ); ?></option>
@@ -560,32 +560,34 @@ function wpt_get_scheduled_tweets() {
 						}
 					?>					
 				</select>
-			</p>
+			</div>
 			</div>
 			<?php $last = wp_get_recent_posts( array( 'numberposts'=>1, 'post_type'=>'post', 'post_status'=>'publish' ) ); $last_id = $last['0']['ID']; ?>
 			<p>
-				<label for='post'><?php _e('Associate with post ID: (required,default is most recently published)','wp-tweets-pro'); ?></label> <input type="text" name="post" id="post" value="<?php echo ( isset($schedule['post'] ) )?$schedule['post']:$last_id; ?>" />
+				<label for='post'><?php _e('Associate with Post ID','wp-tweets-pro'); ?></label> <input type="text" name="post" id="post" value="<?php echo ( isset($schedule['post'] ) )?$schedule['post']:$last_id; ?>" />
 			</p>
+			<?php if ( get_option( 'jd_individual_twitter_users' ) == '1' ) { ?>
 			<p>
 			<?php print('
 						<label for="alt_author">'.__('Post to this author', 'wp-tweets-pro').'</label>
 						<select name="alt_author" id="alt_author">
 							<option value="main">'.__('Main site account','wp-tweets-pro').'</option>
 							<option value="false">'.__('Current User\'s account','wp-tweets-pro').'</option>');
-						$user_query = get_users( array( 'role' => 'subscriber' ) );
-						// This gets the array of ids of the subscribers
-						$subscribers = wp_list_pluck( $user_query, 'ID' );
-						// Now use the exclude parameter to exclude the subscribers
-						$users = get_users( array( 'exclude' => $subscribers ) );						
-						foreach ( $users as $this_user ) {
-							if ( get_user_meta( $this_user->ID, 'wtt_twitter_username',true ) != '' ) {
-								print('<option value="'.$this_user->ID.'">'.$this_user->display_name.'</option>');
+							$user_query = get_users( array( 'role' => 'subscriber' ) );
+							// This gets the array of ids of the subscribers
+							$subscribers = wp_list_pluck( $user_query, 'ID' );
+							// Now use the exclude parameter to exclude the subscribers
+							$users = get_users( array( 'exclude' => $subscribers ) );						
+							foreach ( $users as $this_user ) {
+								if ( get_user_meta( $this_user->ID, 'wtt_twitter_username',true ) != '' ) {
+									print('<option value="'.$this_user->ID.'">'.$this_user->display_name.'</option>');
+								}
 							}
-						}
 					print('
 						</select>');
 			?>
 		</p>
+		<?php } ?>
 		<p><input type="submit" name="submit" value="<?php _e("Schedule a Tweet", 'wp-tweets-pro'); ?>" class="button-primary" /></p>
 		</form>	
 		<h3><?php _e('Recently published posts/IDs:','wp-tweets-pro'); ?></h3>

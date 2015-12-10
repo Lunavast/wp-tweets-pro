@@ -32,14 +32,13 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 
 = 1.9.0 =
 
-12/7/2015
+12/9/2015
 
 * Updated to reflect the deprecation of Twitter Photo cards (mapped to summary_large_image)
 * New feature: create Tweets on a schedule; daily, weekly, monthly, etc.
 * New feature: support for WordPress shortcodes in Tweets.
 * Stop printing styles into <head>
 * Remove some unneeded instructions.
-* 
 
 = 1.8.7 =
 
