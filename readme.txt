@@ -30,6 +30,11 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 * Make all Tweet options fields persistent [todo]
 * Allow AJAX handler for Tweet Now button to pick up values in Tweet to box [todo]
 
+= 1.9.1 =
+
+* Bug fix: media parameter not passed in recurring Tweets
+* 
+
 = 1.9.0 =
 
 12/9/2015
