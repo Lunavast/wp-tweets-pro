@@ -1135,12 +1135,49 @@ function wpt_filter_user_text( $text, $status, $alt=false ) {
  * @param $post_ID integer post ID
  */
 add_action('wpt_schedule_tweet_action', 'wpt_schedule_tweet', 10, 4);
-function wpt_schedule_tweet( $id, $sentence, $rt, $post_ID ) {
-	wpt_mail( "Scheduled Action Happening: #$id","$sentence, $rt, $post_ID" ); // DEBUG
-	// only upload media the first time...
+function wpt_schedule_tweet( $auth, $sentence, $rt, $post_ID ) {
+	wpt_mail( "Scheduled Action Happening: #$auth","$sentence, $rt, $post_ID" ); // DEBUG
 	$media = ( ( get_option( 'wpt_media' ) == '1' ) && ( has_post_thumbnail( $post_ID ) || wpt_post_attachment( $post_ID ) ) ) ? true : false;
 	$media = apply_filters( 'wpt_scheduled_media', $media, $post_ID, $rt ); // filter based on post ID
-	$post = jd_doTwitterAPIPost( $sentence, $id, $post_ID, $media );
+	// generate hash of this Tweet's data
+	$hash = md5( "$sentence, $auth, $post_ID, $media" );
+	// check whether this exact Tweet has already occurred
+	$action = wpt_check_action( $hash );
+	// if action has already happened, don't perform again
+	if ( !$action ) {
+		$post = jd_doTwitterAPIPost( $sentence, $auth, $post_ID, $media );
+		wpt_register_action( $hash );	
+	}
+}
+
+/**
+ * Get stored options of last 50 scheduled Tweets and check against it. This is protection against run away cron jobs.
+ *
+ * @param string $hash hash of Tweet text, author, post ID, and media configuration
+ *
+ * @return boolean true if found
+ */
+function wpt_check_action( $hash ) {
+	$stored = get_option( 'wpt_scheduled_tweets' );
+	$check = ( in_array( $hash, $stored ) ) ? true : false;
+	
+	return $check;
+}
+
+/**
+ * Store hash of last scheduled Tweet.
+ *
+ * @param string $hash hash of Tweet text, author, post ID, and media configuration
+ *
+ * @return boolean true if found
+ */
+function wpt_register_action( $hash ) {
+	$stored = get_option( 'wpt_scheduled_tweets' );
+	// trim array to 49 items; removed oldest, add to end.
+	$stored = array_slice( $stored, 1, 49 );
+	$stored[] = $hash;
+	
+	update_option( 'wpt_scheduled_tweets', $stored );
 }
 
 /**

@@ -33,6 +33,7 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 = 1.9.1 =
 
 * Bug fix: media parameter not passed in recurring Tweets
+* Bug fix: filtering pattern that checks whether a scheduled Tweet has already been sent to prevent runaway cron jobs.
 * 
 
 = 1.9.0 =

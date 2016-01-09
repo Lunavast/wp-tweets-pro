@@ -15,4 +15,5 @@ delete_option( 'wpt_cotweet' );
 delete_option( 'wpt_prepend' );
 delete_option( 'wpt_authorized_users' );
 delete_option( 'wpt_blackout' );
+delete_option( 'wpt_scheduled_tweets' );
 }
