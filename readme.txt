@@ -1,9 +1,9 @@
 === WP Tweets PRO ===
 Contributors: joedolson
-Donate link: http://www.joedolson.com/donate.php
+Donate link: http://www.joedolson.com/donate/
 Tags: twitter, microblogging, su.pr, bitly, yourls, redirect, shortener, post, links
-Requires at least: 3.9.8
-Tested up to: 4.3.1
+Requires at least: 4.0
+Tested up to: 4.4.1
 Stable tag: trunk
 License: GPLv2 or later
 
@@ -34,7 +34,7 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 
 * Bug fix: media parameter not passed in recurring Tweets
 * Bug fix: filtering pattern that checks whether a scheduled Tweet has already been sent to prevent runaway cron jobs.
-* 
+* Misc. design updates
 
 = 1.9.0 =
 
@@ -327,7 +327,7 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 
 == Installation ==
 
-1. Upload the `wp-to-twitter-pro` folder to your `/wp-content/plugins/` directory
+1. Upload the `wp-tweets-pro` folder to your `/wp-content/plugins/` directory
 2. Activate the plugin using the `Plugins` menu in WordPress
 3. Go to the WP to Twitter menu
 4. Adjust your new WP to Twitter PRO Options as you prefer them. 

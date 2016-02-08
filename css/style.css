@@ -15,7 +15,7 @@
 #wp-to-twitter table label { position: absolute; left: -999em; }
 
 #jtw { width: 98%; font-size: 1.5em; margin-top: 2px; }
-.columns {-moz-column-count: 3;-moz-column-gap: 20px;-webkit-column-count: 3;-webkit-column-gap: 20px;column-count: 3;column-gap: 20px;}
+.columns { column-count: 3; column-gap: 20px; -moz-column-count: 3;-moz-column-gap: 20px;-webkit-column-count: 3;-webkit-column-gap: 20px;column-count: 3;column-gap: 20px;}
 #wp2t .datetime { background: rgba( 0,0,0,.05 ); padding: .5em; }
 #wp2t .datetime .date, #wp2t .datetime .time, #wp2t .datetime .recurrence {
 	width: 32%;
@@ -26,6 +26,24 @@
 
 #wp2t input[type=text], #wp2t select {
 	width: 99%;
+}
+
+.wpt-has-schedule {
+	font-weight: 700;
+	font-size: 1.2em;
+	padding: 12px;
+	background: #ffd;
+}
+
+p.invalid {
+	padding: 6px; 
+	background: #ffc; 
+	border: 2px solid #c22; 
+	border-radius: 3px;
+}
+
+#wpt_settings_page p.invalid input {
+	margin-bottom: 0;
 }
 
 .is_recurring { background: rgba( 25, 0, 25, .05 ); }
