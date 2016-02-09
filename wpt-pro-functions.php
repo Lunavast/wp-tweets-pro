@@ -148,8 +148,13 @@ function wpt_update_pro_settings() {
 				
 				if ( isset( $_POST['wpt_unschedule'] ) ) {
 					wp_clear_scheduled_hook( 'wptcron' );
-					delete_option( 'wpt_schedule' );
-					echo "<div class='updated'><p>" . __( 'Automated Schedule Cleared', 'wp-tweets-pro' ) . "</p></div>";
+					$scheduled = wp_get_schedule( 'wptcron' );
+					if ( $scheduled ) {
+						echo "<div class='updated error'><p>" . __( 'Automated Schedule was not cleared.', 'wp-tweets-pro' ) . "</p></div>";
+					} else {
+						delete_option( 'wpt_schedule' );
+						echo "<div class='updated'><p>" . __( 'Automated Schedule Cleared', 'wp-tweets-pro' ) . "</p></div>";
+					}
 				}
 				
 				$schedule = ( isset( $_POST['wpt_schedule'] ) && $_POST['wpt_schedule'] != '' ) ? sanitize_text_field( $_POST['wpt_schedule'] ) : false;
