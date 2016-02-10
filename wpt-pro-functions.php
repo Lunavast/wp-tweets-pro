@@ -186,21 +186,14 @@ function wpt_update_pro_settings() {
 				update_option( 'comment-published-update',( isset( $_POST['comment-published-update']) ) ? $_POST['comment-published-update'] : '' );
 				update_option( 'wpt_comment_delay', ( isset( $_POST['wpt_comment_delay'] ) ) ? $_POST['wpt_comment_delay'] : '' );
 
-				if ( $confirmation == 'false' ) {
-					$message = __('WP Tweets PRO key not valid.','wp-tweets-pro');
-				} else if ( $confirmation == 'inuse' ) {
-					$message = sprintf( __('WP Tweets PRO license key already registered. <a href="%s">Upgrade to a Developer\'s license!</a>','wp-tweets-pro'), 'https://www.joedolson.com/account/' );				
-				} else if ( $confirmation == 'unconfirmed' ) {
-					$message = __('Your payment for WP Tweets PRO has not been confirmed.','wp-tweets-pro');				
-				} else if ( $confirmation == 'true' ) {
-					if ( $previously == 'true' ) { 
-					} else {
-						$message = __('WP Tweets PRO key validated. Enjoy!','wp-tweets-pro');
-					}
+				if ( $confirmation == 'inactive' ) {
+					$message = __('Your WP Tweets PRO key was not activated.','wp-tweets-pro');
+				} else if ( $confirmation == 'active' ) {
+					$message = __( 'Your WP Tweets PRO key has been activated! Enjoy!', 'wp-tweets-pro' );
 				} else if ( $confirmation == 'deleted' ) {
 					$message = __('You have deleted your WP Tweets PRO license key.','wp-tweets-pro');
 				} else {
-					$message = __('WP Tweets PRO received an unexpected message from the license server. Try again in a bit.','wp-tweets-pro');
+					$message = __('WP Tweets PRO received an unexpected message from the license server. Please try again!','wp-tweets-pro');
 				}
 				$message = ( $message != '' )?"$message ":$message; // just add a space
 				$message .= "<strong>".__('WP Tweets PRO Settings Updated','wp-tweets-pro')."</strong>";
@@ -556,7 +549,7 @@ function wpt_get_scheduled_tweets() {
 		<?php $admin_url = admin_url('admin.php?page=wp-to-twitter-schedule'); ?>
 		<form method="post" action="<?php echo $admin_url; ?>">
 		<div><input type="hidden" name="submit-type" value="schedule-tweet" /><input type="hidden" name='author' id='author' value='<?php echo get_current_user_id(); ?>' /></div>
-		<?php $nonce = wp_nonce_field('wp-to-twitter-nonce', '_wpnonce', true, false).wp_referer_field(false);  echo "<div>$nonce</div>"; ?>	
+		<?php $nonce = wp_nonce_field('wp-to-twitter-nonce', '_wpnonce', true, false); echo "<div>$nonce</div>"; ?>	
 			<p style='position: relative'>
 				<label for='jtw'><?php _e('Tweet Text','wp-tweets-pro'); ?></label> <input type="checkbox" value='on' id='filter' name='filter' checked='checked' /> <label for='filter'><?php _e('Run WP to Twitter filters on this Tweet','wp-tweets-pro'); ?></label><br />
 				<textarea id='jtw' name='tweet' rows='3' cols='70'><?php echo ( isset($schedule['tweet']) ) ? stripslashes($schedule['tweet'] ) : ''; ?></textarea>
@@ -987,31 +980,40 @@ function wpt_test_user_reposts( $continue, $rt, $post_ID, $auth_ID ) {
 }
 
 /**
- * Check license validity.
+ * Activate license.
  */
-function wpt_check_license( $key=false ) {
-	global $wptp_version;
-	if ( !$key ) {
-		return false;
-	} else {
-		define('WPT_PRO_PLUGIN_LICENSE_URL', "https://www.joedolson.com/wp-content/plugins/files/license.php" );
-		$response = wp_remote_post( WPT_PRO_PLUGIN_LICENSE_URL, 
-			array (
-				'user-agent' => 'WordPress/WP Tweets PRO' . $wptp_version . '; ' . get_bloginfo( 'url' ), 
-				'body'=>array ('key'=>$key, 'site'=>urlencode(home_url()) ),
-				'timeout' 	=> 30
-			) );
-
-		if ( ! is_wp_error( $response ) || is_array( $response ) ) {
-			$data = $response['body'];
-			if ( !in_array( $data, array( 'false', 'inuse', 'true', 'unconfirmed' ) ) ) {
-				$data = @gzinflate( substr( $response['body'],2 ) );
-			}
-			return $data;
-		}
+function wpt_check_license() {
+	// listen for our activate button to be clicked
+	if( isset( $_POST['wpt_license_key'] ) ) {
+		// run a quick security check 
+	 	if( ! check_admin_referer( 'wp-to-twitter-nonce', '_wpnonce' ) ) 	
+			return; // get out if we didn't click the Activate button
+		// retrieve the license from the database
+		$license = trim( $_POST[ 'wpt_license_key'] );
+		// data to send in our API request
+		$api_params = array( 
+			'edd_action'=> 'activate_license', 
+			'license' 	=> $license, 
+			'item_name' => urlencode( EDD_WPT_ITEM_NAME ), // the name of our product in EDD,
+			'url'       => home_url()
+		);
+		
+		// Call the custom API.
+		$response = wp_remote_post( EDD_WPT_STORE_URL, array(
+			'timeout'   => 15,
+			'sslverify' => false,
+			'body'      => $api_params
+		) );
+		// make sure the response came back okay
+		if ( is_wp_error( $response ) )
+			return false;
+		// decode the license data
+		$license_data = json_decode( wp_remote_retrieve_body( $response ) );
+		
+		// $license_data->license will be either "active" or "inactive"
+		return $license_data->license;
 	}
-	
-	return false;
+
 }
 
 /**
@@ -1366,8 +1368,10 @@ if ( !function_exists( 'wpt_pro_exists' ) ) {
 		return true;
 	}
 }
+
+if ( get_option( 'wpt_license_valid' ) == 'active' || get_option( 'wpt_license_valid' ) == 'true' ) {
 	
-if ( get_option( 'wpt_license_valid' ) != 'true' ) {
+} else {
 	$message = sprintf(__("You must <a href='%s'>enter your WP Tweets Pro license key</a> for support & updates to WP Tweets PRO features.", 'wp-tweets-pro'), admin_url('admin.php?page=wp-tweets-pro&tab=pro'));
 	add_action( 'admin_notices', create_function( '', "if ( ! current_user_can( 'manage_options' ) ) { return; } else { echo \"<div class='error'><p>$message</p></div>\";}" ) );
 }
@@ -1385,8 +1389,7 @@ function wpt_pro_functions() {
 	$class = ( get_option( 'wpt_license_valid' ) == 'true' )?"":"invalid";
 	$retweet = ( get_option('wpt_retweet_after') != '' )?esc_attr( get_option('wpt_retweet_after') ):'39.5';
 	print('	
-		<div class="handlediv"><span class="screen-reader-text">Click to toggle</span></div>
-		<h3 class="hndle"><span>'.__('WP Tweets PRO Settings','wp-tweets-pro').'</span></h3>
+		<h3><span>'.__('WP Tweets PRO Settings','wp-tweets-pro').'</span></h3>
 		<div class="inside">
 			<form action="" method="post">
 					<p class="' . $class . '">
@@ -1652,7 +1655,7 @@ function wpt_pro_functions() {
 					<input type="submit" name="submit" class="button-primary" value="'.__('Update WP Tweets PRO Settings', 'wp-tweets-pro').'" />
 				</p>
 				<input type="hidden" name="wp_pro_settings" value="set" class="hidden" style="display: none;" />
-				'.wp_nonce_field('wp-to-twitter-nonce', '_wpnonce', true, false).wp_referer_field(false).'
+				'.wp_nonce_field('wp-to-twitter-nonce', '_wpnonce', true, false).'
 			</form>
 			</div>';	
 	echo "</div>";
@@ -2220,7 +2223,7 @@ function wpt_list_terms( $post_type, $post_name ) {
 	$taxonomies = get_object_taxonomies( $post_type, 'object' );
 	$term_filters = get_option( 'wpt_terms' );
 	$filter_type = get_option( 'wpt_term_filters' );
-	$nonce = wp_nonce_field('wp-to-twitter-nonce', '_wpnonce', true, false).wp_referer_field(false);
+	$nonce = wp_nonce_field('wp-to-twitter-nonce', '_wpnonce', true, false);
 	$input = '';
 	if ( !empty( $taxonomies ) ) {
 		foreach( $taxonomies as $taxonomy ) {
