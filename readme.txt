@@ -3,7 +3,7 @@ Contributors: joedolson
 Donate link: http://www.joedolson.com/donate/
 Tags: twitter, microblogging, su.pr, bitly, yourls, redirect, shortener, post, links
 Requires at least: 4.0
-Tested up to: 4.4.1
+Tested up to: 4.4.2
 Stable tag: trunk
 License: GPLv2 or later
 
@@ -32,13 +32,15 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 
 = 1.9.1 =
 
-2/8/2016
+2/22/2016
 
 * Bug fix: media parameter not passed in recurring Tweets
 * Bug fix: filtering pattern that checks whether a scheduled Tweet has already been sent to prevent runaway cron jobs.
+* Bug fix: can't echo inside sprintf...
 * Misc. design updates
 * Update automatic updater for EDD
-* Verify that cron job is successfully deleted before deleting autopost setting 
+* Update license activation for EDD
+* Verify that cron job is successfully deleted before deleting autopost setting
 
 = 1.9.0 =
 

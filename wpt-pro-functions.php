@@ -44,10 +44,10 @@ if( !class_exists( 'EDD_SL_Plugin_Updater' ) ) {
 $license_key = trim( get_option( 'wpt_license_key' ) ); 
 // setup the updater
 $edd_updater = new EDD_SL_Plugin_Updater( EDD_WPT_STORE_URL, __FILE__, array(
-	'version' 	=> $wptp_version,					// current version number
+	'version' 	=> $wptp_version,			// current version number
 	'license' 	=> $license_key,			// license key (used get_option above to retrieve from DB)
 	'item_name'     => EDD_WPT_ITEM_NAME,	// name of this plugin
-	'author' 	=> 'Joe Dolson',		// author of this plugin
+	'author' 	=> 'Joe Dolson',			// author of this plugin
 	'url'           => home_url()
 ) );
 
@@ -1061,7 +1061,7 @@ function wpt_pro_menu() {
 		$error_permissions = apply_filters( 'wpt_error_tweets_capability', 'manage_options', $user_ID );
 		
 		$schedule = add_submenu_page('wp-tweets-pro', __('Scheduled Tweets','wp-tweets-pro'), __('Scheduled Tweets','wp-tweets-pro'), $scheduled_permissions, 'wp-to-twitter-schedule', 'wpt_get_scheduled_tweets');
-		add_submenu_page('wp-tweets-pro', __('Past Tweets','wp-tweets-pro'), __('Past Tweets','wp-tweets-pro'), $past_permissions, 'wp-to-twitter-tweets', 'wpt_get_past_tweets');		
+		add_submenu_page('wp-tweets-pro', __('Sent Tweets','wp-tweets-pro'), __('Sent Tweets','wp-tweets-pro'), $past_permissions, 'wp-to-twitter-tweets', 'wpt_get_past_tweets');		
 		add_submenu_page('wp-tweets-pro', __('Failed Tweets','wp-tweets-pro'), __('Failed Tweets','wp-tweets-pro'), $error_permissions, 'wp-to-twitter-errors', 'wpt_get_failed_tweets');	
 	}
 }
@@ -1079,7 +1079,7 @@ function wpt_warning() {
 add_filter( 'wpt_save_user','wpt_update_user_oauth',10,2 );
 function wpt_update_user_oauth( $edit_id, $post ) {
 	if ( current_user_can( 'wpt_twitter_oauth' ) || current_user_can( 'manage_options' ) ) {	
-		if ( function_exists( 'wpt_pro_exists' ) ) {
+		if ( function_exists( 'wpt_pro_exists' ) && ! empty( $_POST[ 'wtt_app_consumer_key' ] ) ) {
 			$message = wpt_update_oauth_settings( $edit_id, $post );
 			switch( $message ) {
 				case 'success':
@@ -1089,7 +1089,7 @@ function wpt_update_user_oauth( $edit_id, $post ) {
 					$message = __('We could not connect your profile to Twitter. Please check your application keys and settings and try again.','wp-tweets-pro');			
 				break;
 				case 'nodata':
-					$message = __('Your Twitter keys were not received - did you leave the fields blank?','wp-tweets-pro');			
+					$message = __('Your Twitter keys were not received - did you leave the fields blank?','wp-tweets-pro');	
 				break;
 				case 'nosync':
 					$message = __('We could not connect your profile to Twitter due to a time discrepancy between this server and Twitter.','wp-tweets-pro');			
@@ -1101,8 +1101,11 @@ function wpt_update_user_oauth( $edit_id, $post ) {
 				break;
 			}
 			update_user_meta( $edit_id, 'wpt-connection-message', $message );
+		} else {
+			delete_user_meta( $edit_id, 'wpt-connection-message' );
 		}
 	}
+	
 	return $edit_id; 
 }
 
@@ -1123,6 +1126,27 @@ function wpt_update_twitter_user_fields( $edit_id, $post ) {
 }
 
 /**
+ * Add Twitter 3-legged authentication to user account
+ *
+ * Need to update to latest TwitterOAuth to do this.
+*/
+add_filter( 'wpt_twitter_user_fields', 'wpt_twitter_oauth3' );
+function wpt_twitter_oauth3() {
+	// Build TwitterOAuth object with client credentials. 
+	/*
+	$ack = get_option( 'app_consumer_key' );
+	$acs = get_option( 'app_consumer_secret' );
+	$connection = new wpt_TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET);
+
+	// Get temporary credentials.
+	$request_token = $connection->oauth( 'oauth/request_token', array( 'oauth_callback' => home_url() ) );
+
+	print_r($request_token); 
+	*/
+}
+
+
+/**
  * Add Twitter user settings to user account.
  */
 add_filter( 'wpt_twitter_user_fields','wpt_twitter_user_fields' );
@@ -1138,7 +1162,7 @@ function wpt_twitter_user_fields( $edit_id ) {
 		<tr><th scope='row'><label for='wpt_new'>".__('Tweet Template for new posts:','wp-tweets-pro').'</label></th><td><input type="text" class="regular-text" name="wpt_templates[new]" id="wpt_new" value="%1$s" /></td></tr>'."
 		<tr><th scope='row'><label for='wpt_edit'>".__('Tweet Template for edited posts:','wp-tweets-pro').'</label></th><td><input type="text" class="regular-text" name="wpt_templates[edit]" id="wpt_edit" value="%2$s" /></td></tr>
 		<tr><th scope="row"><label for="wpt_retweet_repeat">'.__('Number of reposts','wp-tweets-pro').'</label></th><td><select id="wpt_retweet_repeat" name="wpt_retweet_repeat">
-			<option value="">'. _e( 'Default', 'wp-tweets-pro' ) . '</option>
+			<option value="">'. __( 'Default', 'wp-tweets-pro' ) . '</option>
 			<option value="0"' . selected( $reposts, 0, false ) . '>0</option>
 			<option value="1"' . selected( $reposts, 1, false ) . '>1</option>
 			<option value="2"' . selected( $reposts, 2, false ) . '>2</option>
@@ -1320,12 +1344,25 @@ function wpt_schedule_values( $post_id, $display='normal' ) {
 <input type='checkbox' value='on' name='_wpt_cotweet' id='wpt_cotweet'<?php echo $checked; ?> /> <label for='wpt_cotweet'><?php _e('Co-tweet to site Twitter account','wp-tweets-pro'); ?></label>
 </p>
 <?php } ?>
+<p>
+<label for="wrr"><?php _e("Re-post how many times:", 'wp-tweets-pro'); ?></label> 
+	<select name="_wpt_retweet_repeat" id="wrr">
+		<?php
+		$retweet_repeat_count = apply_filters( 'wpt_tweet_repeat_count', 4 );
+		for ( $i = 0; $i < $retweet_repeat_count; $i++ ) {
+			print( '<option value="' . $i . '"'.selected( $repeat, $i, false ).'>' . $i . ' </option>' );
+		}
+		?>
+	</select>
+</p>
+
 <?php 
 $cards = get_option( 'wpt_twitter_card' ); 
 if ( $cards == 1 ) {
-	$card = ( get_post_meta( $post_id, '_wpt_twitter_card', true ) != '' ) ? get_post_meta( $post_id, '_wpt_twitter_card', true ) : get_option( 'wpt_twitter_card_type' ); ?>
+	$card = ( get_post_meta( $post_id, '_wpt_twitter_card', true ) != '' ) ? get_post_meta( $post_id, '_wpt_twitter_card', true ) : get_option( 'wpt_twitter_card_type' ); 
+?>
 	<p>
-	<label for='wpt_twitter_card'><?php _e('Twitter Card Type','wp-tweets-pro'); ?></label> 
+	<label for='wpt_twitter_card'><?php _e('Twitter Card','wp-tweets-pro'); ?></label> 
 	<select name='_wpt_twitter_card' id='wpt_twitter_card' />
 		<option value='summary'<?php selected( $card, 'summary' ); ?>><?php _e( 'Summary', 'wp-tweets-pro' ); ?></option>
 		<option value='photo'<?php selected( $card, 'photo' ); ?>><?php _e( 'Photo', 'wp-tweets-pro' ); ?></option>
@@ -1339,24 +1376,13 @@ if ( $cards == 1 ) {
 	if ( get_option( 'wpt_media' ) == 1 ) { 
 		$checked = apply_filters( 'wpt_default_upload_image', $checked, $upload ); ?>
 		<p class='toggle-btn-group'>
-			<input type='radio' name='_wpt_image' id='wpt_image_no' value='1'<?php checked( $checked, 'no' ); ?> /> <label for='wpt_image_no'><?php _e('No image upload','wp-tweets-pro'); ?></label>
+			<input type='radio' name='_wpt_image' id='wpt_image_no' value='1'<?php checked( $checked, 'no' ); ?> /> <label for='wpt_image_no'><?php _e('No upload','wp-tweets-pro'); ?></label>
 			<input type='radio' name='_wpt_image' id='wpt_image_yes' value='0'<?php checked( $checked, 'yes' ); ?> /> <label for='wpt_image_yes'><?php _e('Upload image','wp-tweets-pro'); ?></label>
 		</p><?php 
 	} ?>
-<p>
-<label for="wrr"><?php _e("Re-post how many times:", 'wp-tweets-pro'); ?></label> 
-	<select name="_wpt_retweet_repeat" id="wrr">
-		<?php
-		$retweet_repeat_count = apply_filters( 'wpt_tweet_repeat_count', 4 );
-		for ( $i = 0; $i < $retweet_repeat_count; $i++ ) {
-			print( '<option value="' . $i . '"'.selected( $repeat, $i, false ).'>' . $i . ' </option>' );
-		}
-		?>
-	</select>
-</p>
 <?php if ( get_option( 'wpt_schedule' ) != '' ) { ?>
 <p>
-<input type='checkbox' value='1' id='wpt_noautopost' name='_wpt_noautopost'<?php checked( $noautopost, 1 ); ?> /> <label for='wpt_noautopost'><?php _e( "Don't automatically repost this post", 'wp-tweets-pro' ); ?></label>
+<input type='checkbox' value='1' id='wpt_noautopost' name='_wpt_noautopost'<?php checked( $noautopost, 1 ); ?> /> <label for='wpt_noautopost'><?php _e( "No automatic re-posts", 'wp-tweets-pro' ); ?></label>
 </p>
 <?php } ?>
 <?php
@@ -1577,7 +1603,7 @@ function wpt_pro_functions() {
 					?>
 					<p class="wpt-has-schedule">
 						<input type='hidden' name='wpt_is_scheduled' value='on' />
-						<input type='checkbox' id='wpt_unschedule' name='wpt_unschedule' /> <label for='wpt_unschedule'><?php _e( 'Delete currently scheduled posting cycle', 'wp-tweets-pro' ); ?>
+						<input type='checkbox' id='wpt_unschedule' name='wpt_unschedule' /> <label for='wpt_unschedule'><?php _e( 'Cancel scheduled posting cycle', 'wp-tweets-pro' ); ?><?php echo ' (' . get_option( 'wpt_schedule' ) . ')'; ?>
 					</p>
 					<?php							
 						}
@@ -1600,7 +1626,7 @@ function wpt_pro_functions() {
 						<textarea name='wpt_schedule_template' id='wpt_schedule_template' cols='60' rows='3' class='wpt-template' placeholder="#title# #url#"><?php esc_attr_e( stripslashes( get_option( 'wpt_schedule_template' ) ) ); ?></textarea>
 					</p>
 					<p>
-						<label for="wpt_minimum_age"><?php _e( 'Minimum age of posts eligible for automatic Tweeting', 'wp-tweets-pro' ); ?></label>
+						<label for="wpt_minimum_age"><?php _e( 'Minimum age eligible for automatic Tweeting', 'wp-tweets-pro' ); ?></label>
 						<select name='wpt_minimum_age' id='wpt_minimum_age'>
 							<option value='none'<?php selected( get_option( 'wpt_minimum_age' ), 1 ); ?>><?php _e( 'No limit', 'wp-tweets-pro' ); ?></option>						
 							<option value='2592000'<?php selected( get_option( 'wpt_minimum_age' ), 2592000 ); ?>><?php _e( '1 month', 'wp-tweets-pro' ); ?></option>
@@ -1610,7 +1636,7 @@ function wpt_pro_functions() {
 						</select>
 					</p>
 					<p>
-						<label for="wpt_maximum_age"><?php _e( 'Maximum age of posts eligible for automatic Tweeting', 'wp-tweets-pro' ); ?></label>
+						<label for="wpt_maximum_age"><?php _e( 'Maximum age eligible for automatic Tweeting', 'wp-tweets-pro' ); ?></label>
 						<select name='wpt_maximum_age' id='wpt_maximum_age'>
 							<option value='none'<?php selected( get_option( 'wpt_maximum_age' ), 1 ); ?>><?php _e( 'No limit', 'wp-tweets-pro' ); ?></option>						
 							<option value='31536000'<?php selected( get_option( 'wpt_maximum_age' ), 31536000 ); ?>><?php _e( '12 months', 'wp-tweets-pro' ); ?></option>
@@ -1691,6 +1717,12 @@ function wpt_notes() {
  * Get list of users authorized to post to Twitter
  */
 function wpt_authorized_users( $selected=array() ) {
+	
+	$override = apply_filters( 'wpt_override_author_selection', false );
+	if ( $override ) {
+		return $override;
+	}
+	
 	global $user_ID;
 	$users = get_option( 'wpt_authorized_users' );
 	if ( !$users ) {
@@ -1734,6 +1766,7 @@ function wpt_authorized_users( $selected=array() ) {
 		}
 	}
 	$select .= "</select></p>";
+	
 	return $select;
 }
 
