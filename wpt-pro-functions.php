@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: WP Tweets PRO
-Plugin URI: https://www.joedolson.com/wp-tweets-pro/
+Plugin URI: http://www.wptweetspro.com/wp-tweets-pro
 Description: Adds great new features to extend WP to Twitter. 
 Version: 1.9.1
 Author: Joseph Dolson
@@ -188,7 +188,7 @@ function wpt_update_pro_settings() {
 
 				if ( $confirmation == 'inactive' ) {
 					$message = __('Your WP Tweets PRO key was not activated.','wp-tweets-pro');
-				} else if ( $confirmation == 'active' ) {
+				} else if ( $confirmation == 'active' || $confirmation == 'valid' ) {
 					$message = __( 'Your WP Tweets PRO key has been activated! Enjoy!', 'wp-tweets-pro' );
 				} else if ( $confirmation == 'deleted' ) {
 					$message = __('You have deleted your WP Tweets PRO license key.','wp-tweets-pro');
@@ -1395,7 +1395,7 @@ if ( !function_exists( 'wpt_pro_exists' ) ) {
 	}
 }
 
-if ( get_option( 'wpt_license_valid' ) == 'active' || get_option( 'wpt_license_valid' ) == 'true' ) {
+if ( get_option( 'wpt_license_valid' ) == 'active' || get_option( 'wpt_license_valid' ) == 'valid' || get_option( 'wpt_license_valid' ) == 'true' ) {
 	
 } else {
 	$message = sprintf(__("You must <a href='%s'>enter your WP Tweets Pro license key</a> for support & updates to WP Tweets PRO features.", 'wp-tweets-pro'), admin_url('admin.php?page=wp-tweets-pro&tab=pro'));
@@ -1412,7 +1412,7 @@ function wpt_pro_functions() {
 	echo '<div class="ui-sortable meta-box-sortables wp-tweets-pro">';
 	echo '<div class="postbox">';
 
-	$class = ( get_option( 'wpt_license_valid' ) == 'true' )?"":"invalid";
+	$class = ( get_option( 'wpt_license_valid' ) == 'true' || get_option( 'wpt_license_valid' ) == 'valid' || get_option( 'wpt_license_valid' ) == 'active' ) ? "valid" : "invalid" ;
 	$retweet = ( get_option('wpt_retweet_after') != '' )?esc_attr( get_option('wpt_retweet_after') ):'39.5';
 	print('	
 		<h3><span>'.__('WP Tweets PRO Settings','wp-tweets-pro').'</span></h3>
@@ -2014,16 +2014,18 @@ function wpt_twitter_card() {
 	$type = wpt_twitter_card_type( $post_ID );
 	$excerpt = wpt_get_excerpt_by_id( $post_ID );
 	
-	$meta = '<meta name="twitter:card" content="' . $type . '" />';
+	$meta = '<!-- WP Tweets PRO -->
+	<meta name="twitter:card" content="' . $type . '" />';
 	$meta .= '
-<meta name="twitter:site" content="@'.get_option('wtt_twitter_username').'" />
-<meta name="twitter:url" content="'.get_permalink($post_ID).'" />
-<meta name="twitter:title" content="'.get_the_title($post_ID).'" />
-<meta name="twitter:description" content="'.$excerpt.'" />
+<meta name="twitter:site" content="@'. esc_attr( get_option('wtt_twitter_username') ).'" />
+<meta name="twitter:url" content="'.esc_attr( get_permalink($post_ID) ).'" />
+<meta name="twitter:title" content="'.esc_attr( strip_tags( get_the_title($post_ID) ) ).'" />
+<meta name="twitter:description" content="'.esc_attr( $excerpt ).'" />
 ';
 if ( wp_get_attachment_url( get_post_thumbnail_id( $post_ID ) ) ) { 
 	$meta .= '<meta name="twitter:image" content="'. wp_get_attachment_url( get_post_thumbnail_id( $post_ID ) ).'">';
 }
+$meta .= "<!-- WP Tweets PRO -->";
 	echo $meta;
 	} 
 }
