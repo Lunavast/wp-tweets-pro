@@ -4,7 +4,7 @@ Donate link: http://www.joedolson.com/donate/
 Tags: twitter, microblogging, su.pr, bitly, yourls, redirect, shortener, post, links
 Requires at least: 4.0
 Tested up to: 4.4.2
-Stable tag: trunk
+Stable tag: 1.9.2
 License: GPLv2 or later
 
 Posts a Twitter update when you update your WordPress blog or post to your blogroll. Requires WP to Twitter.
@@ -33,7 +33,6 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 = 1.9.2 =
 
 * Bug fix: issues with license activation handling.
-* 
 
 = 1.9.1 =
 

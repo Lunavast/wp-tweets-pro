@@ -3,7 +3,7 @@
 Plugin Name: WP Tweets PRO
 Plugin URI: http://www.wptweetspro.com/wp-tweets-pro
 Description: Adds great new features to extend WP to Twitter. 
-Version: 1.9.1
+Version: 1.9.2
 Author: Joseph Dolson
 Author URI: https://www.joedolson.com/
 */
@@ -26,7 +26,7 @@ Author URI: https://www.joedolson.com/
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 global $wptp_version;
-$wptp_version = '1.9.1';
+$wptp_version = '1.9.2';
 load_plugin_textdomain( 'wp-tweets-pro', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' ); 
 // response to settings updates
 
@@ -1413,13 +1413,14 @@ function wpt_pro_functions() {
 	echo '<div class="postbox">';
 
 	$class = ( get_option( 'wpt_license_valid' ) == 'true' || get_option( 'wpt_license_valid' ) == 'valid' || get_option( 'wpt_license_valid' ) == 'active' ) ? "valid" : "invalid" ;
-	$retweet = ( get_option('wpt_retweet_after') != '' )?esc_attr( get_option('wpt_retweet_after') ):'39.5';
+	$active = ( $class == 'valid' ) ? ' <span class="activated">(' . __( 'activated', 'wp-tweets-pro' ) . ')</span>' : '';
+	$retweet = ( get_option('wpt_retweet_after') != '' ) ? esc_attr( get_option('wpt_retweet_after') ) : '39.5';
 	print('	
 		<h3><span>'.__('WP Tweets PRO Settings','wp-tweets-pro').'</span></h3>
 		<div class="inside">
 			<form action="" method="post">
 					<p class="' . $class . '">
-						<label for="wpt_license_key">'.__('License Key', 'wp-tweets-pro').'</label>
+						<label for="wpt_license_key">'.__('License Key', 'wp-tweets-pro').$active. '</label><br/>
 						<input type="text" size="38" name="wpt_license_key" id="wpt_license_key" value="'.esc_attr( get_option('wpt_license_key') ).'" />
 					</p>
 				<fieldset>
