@@ -30,6 +30,9 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 * Make all Tweet options fields persistent [todo]
 * Allow AJAX handler for Tweet Now button to pick up values in Tweet to box [todo]
 
+Feature: dynamic scheduling - automatically set a schedule for Tweets
+Feature: parse links for shortening when entered free text.
+
 = 1.9.2 =
 
 * Bug fix: issues with license activation handling.
