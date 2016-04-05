@@ -1,4 +1,4 @@
-
+<?php
 /**
  * Get and display list of scheduled Tweets
  */
