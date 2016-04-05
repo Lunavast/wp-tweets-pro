@@ -29,9 +29,8 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 * Add custom Tweet options for taxonomy terms (custom template, custom URL, etc.) - Pending WordPress support for taxonomy meta. [todo]
 * Make all Tweet options fields persistent [todo]
 * Allow AJAX handler for Tweet Now button to pick up values in Tweet to box [todo]
-
-Feature: dynamic scheduling - automatically set a schedule for Tweets
-Feature: parse links for shortening when entered free text.
+* Feature: dynamic scheduling - automatically set a schedule for Tweets
+* Feature: parse links for shortening when entered free text.
 
 = 1.9.3 =
 
@@ -39,6 +38,8 @@ Feature: parse links for shortening when entered free text.
 * Separate settings for configuring WP Tweets PRO and for activating license key
 * Add link for easy renewals / account log-in
 * Add attachment ID to hash check against previous Tweets.
+* Show intended account for failed Tweets
+* 
 
 = 1.9.2 =
 
