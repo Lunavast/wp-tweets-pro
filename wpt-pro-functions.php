@@ -1217,7 +1217,8 @@ function wpt_schedule_tweet( $auth, $sentence, $rt, $post_ID ) {
 	$media = ( ( get_option( 'wpt_media' ) == '1' ) && ( has_post_thumbnail( $post_ID ) || wpt_post_attachment( $post_ID ) ) ) ? true : false;
 	$media = apply_filters( 'wpt_scheduled_media', $media, $post_ID, $rt ); // filter based on post ID
 	// generate hash of this Tweet's data
-	$hash = md5( "$sentence, $auth, $post_ID, $media" );
+	$attachment = wpt_post_attachment( $post_ID );
+	$hash = md5( "$sentence, $auth, $post_ID, $media, $attachment" );
 	// check whether this exact Tweet has already occurred
 	$action = wpt_check_action( $hash );
 	// if action has already happened, don't perform again

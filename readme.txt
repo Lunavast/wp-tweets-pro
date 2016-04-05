@@ -38,6 +38,7 @@ Feature: parse links for shortening when entered free text.
 * Add support for Twitter's alt attributes for images in Twitter cards
 * Separate settings for configuring WP Tweets PRO and for activating license key
 * Add link for easy renewals / account log-in
+* Add attachment ID to hash check against previous Tweets.
 
 = 1.9.2 =
 
