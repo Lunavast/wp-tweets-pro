@@ -33,6 +33,12 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 Feature: dynamic scheduling - automatically set a schedule for Tweets
 Feature: parse links for shortening when entered free text.
 
+= 1.9.3 =
+
+* Add support for Twitter's alt attributes for images in Twitter cards
+* Separate settings for configuring WP Tweets PRO and for activating license key
+* Add link for easy renewals / account log-in
+
 = 1.9.2 =
 
 * Bug fix: issues with license activation handling.

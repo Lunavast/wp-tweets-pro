@@ -61,6 +61,36 @@ include( plugin_dir_path( __FILE__ ) . 'wpt-auto-repost.php' );
 
 function wpt_update_pro_settings() {
 	$message = '';
+	
+	if ( isset( $_POST['wpt_license_key'] ) ) {
+			$wpt_license_key = $_POST['wpt_license_key'];
+			update_option('wpt_license_key', $wpt_license_key );
+			
+			if ( $wpt_license_key != '' ) {
+				$confirmation = wpt_check_license( $wpt_license_key );
+			} else {
+				$confirmation = 'deleted';
+			}
+			$previously = get_option('wpt_license_valid');
+			update_option('wpt_license_valid', $confirmation );	
+			if ( $confirmation == 'inactive' ) {
+				$message = __('Your WP Tweets PRO key was not activated.','wp-tweets-pro');
+			} else if ( $confirmation == 'active' || $confirmation == 'valid' ) {
+				$message = __( 'Your WP Tweets PRO key has been activated! Enjoy!', 'wp-tweets-pro' );
+			} else if ( $confirmation == 'deleted' ) {
+				$message = __('You have deleted your WP Tweets PRO license key.','wp-tweets-pro');
+			} else if ( $confirmation == 'invalid' ) {
+				if ( $wpt_license_key != '' ) {
+					$message = sprintf( __( 'Your WP Tweets PRO license key is either expired or invalid. If expired, you can <a href="%s">renew now</a>.', 'wp-tweets-pro' ), "https://www.joedolson.com/checkout/?edd_license_key=$wpt_license_key&download_id=5729" ); 
+				} else {
+					$message = sprintf( __( 'Your WP Tweets PRO license key is either expired or invalid. <a href="%s">Log in to your account to check</a>.', 'wp-tweets-pro' ), "https://www.joedolson.com/account/" ); 						
+				}
+			} else {
+				$message = __('WP Tweets PRO received an unexpected message from the license server. Please try again!','wp-tweets-pro');
+			}
+			$notice = "<div id='message' class='updated notice'><p>$message</p></div>";			
+	}
+	
 	if ( !empty($_POST['wp_pro_settings']) ) {
 		switch ( $_POST['wp_pro_settings'] ) {
 			case 'set':
@@ -76,17 +106,6 @@ function wpt_update_pro_settings() {
 				
 				$wpt_retweet_repeat = $_POST['wpt_retweet_repeat'];
 				update_option('wpt_retweet_repeat', $wpt_retweet_repeat );
-			
-				$wpt_license_key = $_POST['wpt_license_key'];
-				update_option('wpt_license_key', $wpt_license_key );
-				
-				if ( $wpt_license_key != '' ) {
-					$confirmation = wpt_check_license( $wpt_license_key );
-				} else {
-					$confirmation = 'deleted';
-				}
-				$previously = get_option('wpt_license_valid');
-				update_option('wpt_license_valid', $confirmation );
 				
 				$wpt_custom_type = ( isset( $_POST['wpt_custom_type'] ) )?$_POST['wpt_custom_type']:'prefix';
 				$wpt_prepend_rt3 = ( isset( $_POST['wpt_prepend_rt3'] ) )?$_POST['wpt_prepend_rt3']:'';				
@@ -186,17 +205,7 @@ function wpt_update_pro_settings() {
 				update_option( 'comment-published-update',( isset( $_POST['comment-published-update']) ) ? $_POST['comment-published-update'] : '' );
 				update_option( 'wpt_comment_delay', ( isset( $_POST['wpt_comment_delay'] ) ) ? $_POST['wpt_comment_delay'] : '' );
 
-				if ( $confirmation == 'inactive' ) {
-					$message = __('Your WP Tweets PRO key was not activated.','wp-tweets-pro');
-				} else if ( $confirmation == 'active' || $confirmation == 'valid' ) {
-					$message = __( 'Your WP Tweets PRO key has been activated! Enjoy!', 'wp-tweets-pro' );
-				} else if ( $confirmation == 'deleted' ) {
-					$message = __('You have deleted your WP Tweets PRO license key.','wp-tweets-pro');
-				} else {
-					$message = __('WP Tweets PRO received an unexpected message from the license server. Please try again!','wp-tweets-pro');
-				}
-				$message = ( $message != '' )?"$message ":$message; // just add a space
-				$message .= "<strong>".__('WP Tweets PRO Settings Updated','wp-tweets-pro')."</strong>";
+				$message = "<strong>".__('WP Tweets PRO Settings Updated','wp-tweets-pro')."</strong>";
 				$notice = "<div id='message' class='updated notice'><p>$message</p></div>";
 				if ( $prepend_warning != '' ) { $notice .= "<div id='message' class='error notice'><p>".$prepend_warning . "</p></div>"; }
 				echo $notice;
@@ -449,6 +458,7 @@ function wpt_get_scheduled_tweets() {
 	$schedules = wp_get_schedules();
 	$date_format = _x( 'M j, Y @ G:i', 'Publish box date format', 'wp-tweets-pro' );
 	$clear_queue = wp_nonce_url( admin_url("admin.php?page=wp-to-twitter-schedule&amp;wpt=clear") );
+	$cur_sched = '';
 	if ( isset( $schedule['message'] ) ) { echo $schedule['message']; }
 
 ?>
@@ -456,7 +466,7 @@ function wpt_get_scheduled_tweets() {
 
 	<?php $elem = ( version_compare( '4.3', get_option( 'version' ), '>=' ) ) ? 'h1' : 'h2'; ?>
 	<<?php echo $elem; ?>><?php _e('Scheduled Tweets from WP Tweets PRO', 'wp-tweets-pro'); ?></<?php echo $elem; ?>>
-	<div id="wp-to-twitter" class="postbox-container jcd-wide">
+	<div class="postbox-container jcd-wide">
 	<div class="metabox-holder">
 	<div class="ui-sortable meta-box-sortables">
 	<div class="postbox">
@@ -483,7 +493,7 @@ function wpt_get_scheduled_tweets() {
 							$i++; 
 							if ( $hook == 'wpt_recurring_tweets' ) {
 								$class = 'is_recurring';
-								$schedule = ', '.$event['schedule'];
+								$cur_sched = ', '.$event['schedule'];
 							}
 							if ( count( $event[ 'args' ] ) ) {
 								$auth = $event['args']['id'];
@@ -523,7 +533,7 @@ function wpt_get_scheduled_tweets() {
 								}
 							?>
 							<tr class='<?php echo $class; ?>'>
-								<th scope="row"><?php echo date_i18n( $date_format, ( $timestamp + $offset ) ); ?><br /><small>(~<?php echo $time_diff.$schedule; ?>)</small></th>
+								<th scope="row"><?php echo date_i18n( $date_format, ( $timestamp + $offset ) ); ?><br /><small>(~<?php echo $time_diff.$cur_sched; ?>)</small></th>
 								<td id='sentence-<?php echo $id; ?>'><strong><?php echo "$sentence $image"; ?></td>
 								<td><a href='<?php echo $link; ?>'><?php echo $account; ?></a></td>
 								<td><input type='checkbox' id='checkbox-<?php echo $id; ?>' value='<?php echo $id; ?>' name='delete-list[]' aria-describedby='sentence-<?php echo $id; ?>' /> <label for='checkbox-<?php echo $id; ?>'><?php _e( 'Delete', 'wp-tweets-pro' ); ?></label></td>
@@ -624,7 +634,7 @@ function wpt_get_scheduled_tweets() {
 	</div>
 </div>
 </div>
-<?php if ( function_exists( 'wpt_sidebar' ) ) { wpt_sidebar(); } else { _e('Please Activate WP to Twitter!','wp-tweets-pro'); } ?>	
+<?php if ( function_exists( 'wpt_sidebar' ) ) { wpt_sidebar(); } else { _e( 'Please Activate WP to Twitter!','wp-tweets-pro' ); } ?>	
 </div>
 <?php
 }
@@ -635,10 +645,14 @@ function wpt_get_scheduled_tweets() {
 function wpt_schedule_custom_tweet( $post ) {
 	$offset = (60*60*get_option('gmt_offset'));
 	if ( isset($post['submit-type']) && $post['submit-type'] == 'schedule-tweet' ) { 
-		$auth = ( isset($post['author']) && $post['author'] != '' )?(int) $post['author']:false;
-		$auth = ( isset($post['alt_author']) && $post['alt_author'] == 'false' )?$auth:(int) $post['alt_author'];
-		$auth = ( isset($post['alt_author']) && $post['alt_author'] == 'main' )?false:$auth;
-		if ( $auth && get_user_meta( $auth, 'wtt_twitter_username',true ) == '' ) {
+		if ( isset( $post['alt_author'] ) ) {
+			$auth = ( isset($post['author']) && $post['author'] != '' ) ? (int) $post['author']:false;
+			$auth = ( isset($post['alt_author']) && $post['alt_author'] == 'false' ) ? $auth : (int) $post['alt_author'];
+			$auth = ( isset($post['alt_author']) && $post['alt_author'] == 'main' ) ? false : $auth;
+			if ( $auth && get_user_meta( $auth, 'wtt_twitter_username',true ) == '' ) {
+				$auth = false;
+			}
+		} else {
 			$auth = false;
 		}
 		$encoding = get_option('blog_charset');
@@ -1079,7 +1093,7 @@ function wpt_warning() {
 add_filter( 'wpt_save_user','wpt_update_user_oauth',10,2 );
 function wpt_update_user_oauth( $edit_id, $post ) {
 	if ( current_user_can( 'wpt_twitter_oauth' ) || current_user_can( 'manage_options' ) ) {	
-		if ( function_exists( 'wpt_pro_exists' ) && ! empty( $_POST[ 'wtt_app_consumer_key' ] ) ) {
+		if ( function_exists( 'wpt_pro_exists' ) && ( ! empty( $_POST[ 'wtt_app_consumer_key' ] ) || isset( $_POST['oauth_settings'] ) ) ) {
 			$message = wpt_update_oauth_settings( $edit_id, $post );
 			switch( $message ) {
 				case 'success':
@@ -1414,15 +1428,21 @@ function wpt_pro_functions() {
 
 	$class = ( get_option( 'wpt_license_valid' ) == 'true' || get_option( 'wpt_license_valid' ) == 'valid' || get_option( 'wpt_license_valid' ) == 'active' ) ? "valid" : "invalid" ;
 	$active = ( $class == 'valid' ) ? ' <span class="activated">(' . __( 'activated', 'wp-tweets-pro' ) . ')</span>' : '';
-	$retweet = ( get_option('wpt_retweet_after') != '' ) ? esc_attr( get_option('wpt_retweet_after') ) : '39.5';
+	$retweet = ( get_option('wpt_retweet_after') != '' ) ? esc_attr( get_option( 'wpt_retweet_after' ) ) : '39.5';
+	$license_key = ( $class == 'valid' ) ? __( 'Update', 'wp-tweets-pro' ) : __( 'Activate', 'wp-tweets-pro' );
+	$button_type = ( $class == 'valid' ) ? 'button-secondary' : 'button-primary';
 	print('	
 		<h3><span>'.__('WP Tweets PRO Settings','wp-tweets-pro').'</span></h3>
 		<div class="inside">
 			<form action="" method="post">
 					<p class="' . $class . '">
 						<label for="wpt_license_key">'.__('License Key', 'wp-tweets-pro').$active. '</label><br/>
-						<input type="text" size="38" name="wpt_license_key" id="wpt_license_key" value="'.esc_attr( get_option('wpt_license_key') ).'" />
+						<input type="text" size="38" name="wpt_license_key" id="wpt_license_key" value="'.esc_attr( get_option('wpt_license_key') ).'" /> <input type="submit" value="' . $license_key . '" class="' . $button_type . '" />
 					</p>
+					<input type="hidden" name="wp_pro_settings" value="set" class="hidden" />
+					'.wp_nonce_field('wp-to-twitter-nonce', '_wpnonce', true, false).'					
+			</form>
+			<form action="" method="post">
 				<fieldset>
 				<legend>'.__('Scheduling','wp-tweets-pro').'</legend>
 					<p>
@@ -1528,8 +1548,8 @@ function wpt_pro_functions() {
 						<label for="wpt_cotweet_lock">'.__('All co-tweets sent to this author', 'wp-tweets-pro').'</label>
 						<select name="wpt_cotweet_lock" id="wpt_cotweet_lock"'.$disabled.'>
 							<option value="false">'.__('Post author','wp-tweets-pro').'</option>');
-						$count = count_users('time');
-						$users = ( $count['total_users'] > 100 )?get_users( array( 'role'=>'administrator' ) ):$users = get_users();
+						$count = count_users( 'time' );
+						$users = ( $count['total_users'] > 100 ) ? get_users( array( 'role'=>'administrator' ) ) : $users = get_users();
 						$authorized_users = array();
 						foreach ( $users as $this_user ) {
 							if ( wtt_oauth_test( $this_user->ID,'verify' ) ) {
@@ -1640,6 +1660,9 @@ function wpt_pro_functions() {
 						<label for="wpt_maximum_age"><?php _e( 'Maximum age eligible for automatic Tweeting', 'wp-tweets-pro' ); ?></label>
 						<select name='wpt_maximum_age' id='wpt_maximum_age'>
 							<option value='none'<?php selected( get_option( 'wpt_maximum_age' ), 1 ); ?>><?php _e( 'No limit', 'wp-tweets-pro' ); ?></option>						
+							<option value='31536000'<?php selected( get_option( 'wpt_maximum_age' ), 2628000  ); ?>><?php _e( '1 month', 'wp-tweets-pro' ); ?></option>
+							<option value='31536000'<?php selected( get_option( 'wpt_maximum_age' ), 7884000 ); ?>><?php _e( '3 months', 'wp-tweets-pro' ); ?></option>
+							<option value='31536000'<?php selected( get_option( 'wpt_maximum_age' ), 15768000 ); ?>><?php _e( '6 months', 'wp-tweets-pro' ); ?></option>
 							<option value='31536000'<?php selected( get_option( 'wpt_maximum_age' ), 31536000 ); ?>><?php _e( '12 months', 'wp-tweets-pro' ); ?></option>
 							<option value='63072000'<?php selected( get_option( 'wpt_maximum_age' ), 63072000 ); ?>><?php _e( '2 years', 'wp-tweets-pro' ); ?></option>	
 							<option value='157680000'<?php selected( get_option( 'wpt_maximum_age' ), 157680000 ); ?>><?php _e( '5 years', 'wp-tweets-pro' ); ?></option>
@@ -1681,7 +1704,7 @@ function wpt_pro_functions() {
 		echo '		<p class="submit">
 					<input type="submit" name="submit" class="button-primary" value="'.__('Update WP Tweets PRO Settings', 'wp-tweets-pro').'" />
 				</p>
-				<input type="hidden" name="wp_pro_settings" value="set" class="hidden" style="display: none;" />
+				<input type="hidden" name="wp_pro_settings" value="set" class="hidden" />
 				'.wp_nonce_field('wp-to-twitter-nonce', '_wpnonce', true, false).'
 			</form>
 			</div>';	
@@ -2024,7 +2047,10 @@ function wpt_twitter_card() {
 <meta name="twitter:description" content="'.esc_attr( $excerpt ).'" />
 ';
 if ( wp_get_attachment_url( get_post_thumbnail_id( $post_ID ) ) ) { 
-	$meta .= '<meta name="twitter:image" content="'. wp_get_attachment_url( get_post_thumbnail_id( $post_ID ) ).'">';
+	$thumb_id = get_post_thumbnail_id( $post_ID );
+	$alt = get_post_meta( $thumb_id, '_wp_attachment_image_alt', true );
+	$meta .= '<meta name="twitter:image" content="' . esc_url( wp_get_attachment_url( $thumb_id ) ) . '">';
+	$meta .= '<meta name="twitter:image:alt" content="' . esc_attr( $alt ) . '">';
 }
 $meta .= "<!-- WP Tweets PRO -->";
 	echo $meta;
