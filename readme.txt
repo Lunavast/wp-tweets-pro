@@ -39,6 +39,7 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 * Change: Separate settings for configuring WP Tweets PRO and for activating license key
 * Change: Add link for easy renewals / account log-in
 * Bug fix: Add attachment ID to hash check against previous Tweets.
+* Bug fix: don't show no license warning when license is being updated
 * Feature: Show intended account for failed Tweets
 
 = 1.9.2 =
