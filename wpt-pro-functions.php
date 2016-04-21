@@ -91,7 +91,8 @@ function wpt_update_pro_settings() {
 			} else {
 				$message = __('WP Tweets PRO received an unexpected message from the license server. Please try again!','wp-tweets-pro');
 			}
-			$notice = "<div id='message' class='updated notice'><p>$message</p></div>";			
+			$notice = "<div id='message' class='updated notice'><p>$message</p></div>";
+			echo $notice;
 	}
 	
 	if ( !empty($_POST['wp_pro_settings']) ) {
@@ -939,8 +940,10 @@ if ( !function_exists( 'wpt_pro_exists' ) ) {
 if ( get_option( 'wpt_license_valid' ) == 'active' || get_option( 'wpt_license_valid' ) == 'valid' || get_option( 'wpt_license_valid' ) == 'true' ) {
 	
 } else {
-	$message = sprintf(__("You must <a href='%s'>enter your WP Tweets Pro license key</a> for support & updates to WP Tweets PRO features.", 'wp-tweets-pro'), admin_url('admin.php?page=wp-tweets-pro&tab=pro'));
-	add_action( 'admin_notices', create_function( '', "if ( ! current_user_can( 'manage_options' ) ) { return; } else { echo \"<div class='error'><p>$message</p></div>\";}" ) );
+	if ( !isset( $_POST['wpt_license_key'] ) ) {
+		$message = sprintf(__("You must <a href='%s'>enter your WP Tweets Pro license key</a> for support & updates to WP Tweets PRO features.", 'wp-tweets-pro'), admin_url('admin.php?page=wp-tweets-pro&tab=pro'));
+		add_action( 'admin_notices', create_function( '', "if ( ! current_user_can( 'manage_options' ) ) { return; } else { echo \"<div class='error'><p>$message</p></div>\";}" ) );
+	}
 }
 
 /**
@@ -966,7 +969,6 @@ function wpt_pro_functions() {
 						<label for="wpt_license_key">'.__('License Key', 'wp-tweets-pro').$active. '</label><br/>
 						<input type="text" size="38" name="wpt_license_key" id="wpt_license_key" value="'.esc_attr( get_option('wpt_license_key') ).'" /> <input type="submit" value="' . $license_key . '" class="' . $button_type . '" />
 					</p>
-					<input type="hidden" name="wp_pro_settings" value="set" class="hidden" />
 					'.wp_nonce_field('wp-to-twitter-nonce', '_wpnonce', true, false).'					
 			</form>
 			<form action="" method="post">
