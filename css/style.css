@@ -28,6 +28,10 @@
 	width: 99%;
 }
 
+#wp2t .picker__header select {
+	width: auto;
+}
+
 .wpt-has-schedule {
 	font-weight: 700;
 	font-size: 1.2em;

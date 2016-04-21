@@ -2,8 +2,8 @@
 Contributors: joedolson
 Donate link: http://www.joedolson.com/donate/
 Tags: twitter, microblogging, su.pr, bitly, yourls, redirect, shortener, post, links
-Requires at least: 4.0
-Tested up to: 4.4.2
+Requires at least: 4.1
+Tested up to: 4.5
 Stable tag: 1.9.2
 License: GPLv2 or later
 
@@ -31,15 +31,15 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 * Allow AJAX handler for Tweet Now button to pick up values in Tweet to box [todo]
 * Feature: dynamic scheduling - automatically set a schedule for Tweets
 * Feature: parse links for shortening when entered free text.
+* Feature: import Tweets as comments (search API based on URL; import any mention as a comment; save as comment)
 
 = 1.9.3 =
 
-* Add support for Twitter's alt attributes for images in Twitter cards
-* Separate settings for configuring WP Tweets PRO and for activating license key
-* Add link for easy renewals / account log-in
-* Add attachment ID to hash check against previous Tweets.
-* Show intended account for failed Tweets
-* 
+* Feature: Add support for Twitter's alt attributes for images in Twitter cards
+* Change: Separate settings for configuring WP Tweets PRO and for activating license key
+* Change: Add link for easy renewals / account log-in
+* Bug fix: Add attachment ID to hash check against previous Tweets.
+* Feature: Show intended account for failed Tweets
 
 = 1.9.2 =
 
@@ -363,4 +363,4 @@ Do you have WP to Twitter installed? You need to have both installed: WP Tweets 
 
 == Upgrade Notice ==
 
-* 1.5.4 Bug fixes: class collision with updater, fatal error if authorized user array not set.
+* 1.9.3 - Bug fixes; don't call license server everytime pro settings updated.
