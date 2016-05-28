@@ -75,7 +75,7 @@ function wpt_get_scheduled_tweets() {
 										}
 									}
 								}  
-								if ( !$auth ) { 
+								if ( !$auth || $auth == 'main' ) { 
 									$account = '@'.get_option( 'wtt_twitter_username' ); 
 									$link = 'https://twitter.com/' . get_option( 'wtt_twitter_username' ); 
 								} else { 
@@ -176,7 +176,7 @@ function wpt_get_scheduled_tweets() {
 		<?php 
 			$recent = wp_get_recent_posts( array( 'numberposts'=>15,'post_status'=>'publish' ) ); 
 			foreach( $recent as $post ) {
-				echo "<li><code>$post[ID]</code> - <strong>$post[post_title]</strong></li>";
+				echo "<li><code>$post[ID]</code> - <strong>" . strip_tags( $post['post_title'] ) . "</strong></li>";
 			} 
 		?>
 		</ul>

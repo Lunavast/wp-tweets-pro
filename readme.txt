@@ -28,10 +28,18 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 * Option to customize Tweet schedule for each re-post (with customize text) [todo]
 * Add custom Tweet options for taxonomy terms (custom template, custom URL, etc.) - Pending WordPress support for taxonomy meta. [todo]
 * Make all Tweet options fields persistent [todo]
-* Allow AJAX handler for Tweet Now button to pick up values in Tweet to box [todo]
 * Feature: dynamic scheduling - automatically set a schedule for Tweets
 * Feature: parse links for shortening when entered free text.
 * Feature: import Tweets as comments (search API based on URL; import any mention as a comment; save as comment)
+
+= 1.9.4 =
+
+* Feature improvement: Tweet Now and 'Schedule' buttons will now use selected authors & upload image status
+* Add Pro Settings as menu option
+* Bug fix: upload image toggle did not render saved value correctly
+* Bug fix: Display main account correctly in scheduled Tweets list
+* Bug fix: better clearing of authenticated users cache
+* Bug fix: more efficient fetching of authenticated users
 
 = 1.9.3 =
 

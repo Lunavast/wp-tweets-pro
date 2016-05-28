@@ -601,7 +601,8 @@ function wpt_pro_menu() {
 		$past_permissions = apply_filters( 'wpt_past_tweets_capability', 'manage_options', $user_ID );
 		$error_permissions = apply_filters( 'wpt_error_tweets_capability', 'manage_options', $user_ID );
 		
-		$schedule = add_submenu_page('wp-tweets-pro', __('Scheduled Tweets','wp-tweets-pro'), __('Scheduled Tweets','wp-tweets-pro'), $scheduled_permissions, 'wp-to-twitter-schedule', 'wpt_get_scheduled_tweets');
+		add_submenu_page('wp-tweets-pro', __('Pro Settings','wp-tweets-pro'), __('Pro Settings','wp-tweets-pro'), $allowed_group, 'wp-tweets-pro&tab=pro', $function );
+		add_submenu_page('wp-tweets-pro', __('Scheduled Tweets','wp-tweets-pro'), __('Scheduled Tweets','wp-tweets-pro'), $scheduled_permissions, 'wp-to-twitter-schedule', 'wpt_get_scheduled_tweets');
 		add_submenu_page('wp-tweets-pro', __('Sent Tweets','wp-tweets-pro'), __('Sent Tweets','wp-tweets-pro'), $past_permissions, 'wp-to-twitter-tweets', 'wpt_get_past_tweets');		
 		add_submenu_page('wp-tweets-pro', __('Failed Tweets','wp-tweets-pro'), __('Failed Tweets','wp-tweets-pro'), $error_permissions, 'wp-to-twitter-errors', 'wpt_get_failed_tweets');	
 	}
@@ -859,7 +860,7 @@ function wpt_schedule_values( $post_id, $display='normal' ) {
 	$cotweet = ( $cotweet ) ? true : get_option( 'wpt_cotweet' );
 	$cotweet = ( $cotweet ) ? true : false;
 	$repeat = ( get_post_meta( $post_id, '_wpt_retweet_repeat', true ) == false )?get_option('wpt_retweet_repeat'):get_post_meta( $post_id, '_wpt_retweet_repeat', true );
-	$upload = ( get_post_meta( $post_id, '_wpt_image', true ) == 1 ) ? true : false;
+	$upload = ( get_post_meta( $post_id, '_wpt_image', true ) == 1 ) ? 'no' : 'yes';
 	$wpt_images = ( get_option( 'wpt_media' ) == 1 ) ? 'yes' : 'no';
 	$wpt_authorized_users = get_post_meta( $post_id, '_wpt_authorized_users', true );
 	$noautopost = get_post_meta( $post_id, '_wpt_noautopost', true );
@@ -913,7 +914,7 @@ if ( $cards == 1 ) {
 	</p>
 <?php
 }
-	$checked = ( !$upload && $wpt_images == 'no' ) ? 'no' : $wpt_images; 
+	$checked = ( $upload == 'no' && $wpt_images == 'no' ) ? 'no' : $upload; 
 	$checked = ( $checked != 'yes' && $checked != 'no' ) ? 'no' : $checked;
 	if ( get_option( 'wpt_media' ) == 1 ) { 
 		$checked = apply_filters( 'wpt_default_upload_image', $checked, $upload ); ?>
@@ -1077,8 +1078,9 @@ function wpt_pro_functions() {
 						<label for="wpt_cotweet_lock">'.__('All co-tweets sent to this author', 'wp-tweets-pro').'</label>
 						<select name="wpt_cotweet_lock" id="wpt_cotweet_lock"'.$disabled.'>
 							<option value="false">'.__('Post author','wp-tweets-pro').'</option>');
-						$count = count_users( 'time' );
-						$users = ( $count['total_users'] > 100 ) ? get_users( array( 'role'=>'administrator' ) ) : $users = get_users();
+						$args  = array( 'meta_query' => array( array( 'key' => 'wtt_twitter_username', 'compare' => 'EXISTS' ) ) );
+						// get all authorized users
+						$users = get_users( $args );
 						$authorized_users = array();
 						foreach ( $users as $this_user ) {
 							if ( wtt_oauth_test( $this_user->ID,'verify' ) ) {
@@ -1279,8 +1281,9 @@ function wpt_authorized_users( $selected=array() ) {
 	global $user_ID;
 	$users = get_option( 'wpt_authorized_users' );
 	if ( !$users ) {
-		$count = count_users('time');
-		$users = ( $count['total_users'] > 100 )?get_users( array( 'role'=>'administrator' ) ):$users = get_users();
+		$args  = array( 'meta_query' => array( array( 'key' => 'wtt_twitter_username', 'compare' => 'EXISTS' ) ) );
+		// get all authorized users
+		$users = get_users( $args );
 		$authorized_users = array();
 		if ( is_array( $users ) ) {
 			foreach ( $users as $this_user ) {
