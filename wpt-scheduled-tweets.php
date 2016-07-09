@@ -208,20 +208,28 @@ function wpt_schedule_custom_tweet( $post ) {
 		}
 		$encoding = get_option('blog_charset');
 		if ( $encoding == '' ) { $encoding = 'UTF-8'; }
-		$sentence = ( isset($post['tweet'] ) ) ? html_entity_decode( stripcslashes($post['tweet']), ENT_COMPAT, $encoding  ) : '';
+		$sentence      = ( isset($post['tweet'] ) ) ? html_entity_decode( stripcslashes( $post['tweet'] ), ENT_COMPAT, $encoding  ) : '';
 		$orig_sentence = $sentence;
-		$post_id = ( isset($post['post'] ) )?(int) $post['post']:'';
+		$post_id       = ( isset($post['post'] ) ) ? (int) $post['post'] : '';
 		if ( isset( $post['filter'] ) && $post['filter'] == 'on' ) {
 			$post_info = wpt_post_info( $post_id );
-			$sentence = jd_truncate_tweet( $sentence, $post_info, $post_id, false, false );
+			$sentence  = jd_truncate_tweet( $sentence, $post_info, $post_id, false, false );
 		}
 		$time = ( isset( $post['time'] ) && isset( $post['date'] ) ) ? ( strtotime( $post['date'] . ' ' . $post['time'] ) ):'' ;
 		$time = ( $time > current_time( 'timestamp' ) ) ? $time : false;
 		$time = ( $time ) ? $time - $offset : $time; 
 		if ( !$sentence || !$post ) {
-			return array( 'message'=>"<div class='error'><p>".__('You must include a custom tweet text and a post ID to associate the tweet with.','wp-tweets-pro')."</p></div>", 'tweet'=>$sentence, 'post'=>$post_id ); 
+			return array( 
+				'message'=>"<div class='error'><p>".__('You must include a custom tweet text and a post ID to associate the tweet with.','wp-tweets-pro')."</p></div>", 
+				'tweet'=>$sentence, 
+				'post'=>$post_id 
+			); 
 		} else if ( !$time ) {
-			return array( 'message'=>"<div class='error'><p>".__('The time provided was either invalid or in the past.','wp-tweets-pro')."</p></div>", 'tweet'=>$sentence, 'post'=>$post_id ); ; 
+			return array( 
+				'message'=>"<div class='error'><p>".__('The time provided was either invalid or in the past.','wp-tweets-pro')."</p></div>", 
+				'tweet'=>$sentence, 
+				'post'=>$post_id 
+			); ; 
 		} else {
 			if ( !isset( $_POST['wpt_recurrence'] ) || $_POST['wpt_recurrence'] == '' ) {
 				wp_schedule_single_event(
