@@ -3,7 +3,7 @@
 Plugin Name: WP Tweets PRO
 Plugin URI: http://www.wptweetspro.com/wp-tweets-pro
 Description: Adds great new features to extend WP to Twitter. 
-Version: 1.9.4
+Version: 1.9.5
 Author: Joseph Dolson
 Author URI: https://www.joedolson.com/
 */
