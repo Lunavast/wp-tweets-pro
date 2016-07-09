@@ -74,7 +74,7 @@ function wpt_get_scheduled_tweets() {
 											}
 										}
 									}
-								}  
+								}
 								if ( !$auth || $auth == 'main' ) { 
 									$account = '@'.get_option( 'wtt_twitter_username' ); 
 									$link = 'https://twitter.com/' . get_option( 'wtt_twitter_username' ); 
@@ -110,10 +110,14 @@ function wpt_get_scheduled_tweets() {
 		<?php $admin_url = admin_url('admin.php?page=wp-to-twitter-schedule'); ?>
 		<form method="post" action="<?php echo $admin_url; ?>">
 		<div><input type="hidden" name="submit-type" value="schedule-tweet" /><input type="hidden" name='author' id='author' value='<?php echo get_current_user_id(); ?>' /></div>
-		<?php $nonce = wp_nonce_field('wp-to-twitter-nonce', '_wpnonce', true, false); echo "<div>$nonce</div>"; ?>	
+		<?php 
+			$nonce = wp_nonce_field('wp-to-twitter-nonce', '_wpnonce', true, false); echo "<div>$nonce</div>"; 
+			$tweet = ( isset($schedule['tweet'] ) ) ? stripslashes( $schedule['tweet'] ) : '';
+			$tweet = ( isset( $_GET['tweet'] ) ) ? stripslashes( urldecode( $_GET['tweet'] ) ) : $tweet;
+		?>	
 			<p style='position: relative'>
-				<label for='jtw'><?php _e('Tweet Text','wp-tweets-pro'); ?></label> <input type="checkbox" value='on' id='filter' name='filter' checked='checked' /> <label for='filter'><?php _e('Run WP to Twitter filters on this Tweet','wp-tweets-pro'); ?></label><br />
-				<textarea id='jtw' name='tweet' rows='3' cols='70'><?php echo ( isset($schedule['tweet']) ) ? stripslashes($schedule['tweet'] ) : ''; ?></textarea>
+				<label for='jtw'><?php _e('Tweet Text','wp-tweets-pro'); ?></label> <input type="checkbox" value='on' id='filter' name='filter' checked='checked' /><label for='filter'><?php _e('Run WP to Twitter filters on this Tweet','wp-tweets-pro'); ?></label><br />
+				<textarea id='jtw' name='tweet' rows='3' cols='70'><?php echo strip_tags( $tweet ); ?></textarea>
 			</p>
 			<div class="datetime">
 			<div class='date'>
@@ -143,12 +147,26 @@ function wpt_get_scheduled_tweets() {
 			</div>
 			<?php $last = wp_get_recent_posts( array( 'numberposts'=>1, 'post_type'=>'post', 'post_status'=>'publish' ) ); $last_id = $last['0']['ID']; ?>
 			<p>
-				<label for='post'><?php _e('Associate with Post ID','wp-tweets-pro'); ?></label> <input type="text" name="post" id="post" value="<?php echo ( isset( $schedule['post'] ) ) ? $schedule['post'] : $last_id; ?>" />
+				<?php 
+				if ( isset( $_GET['post'] ) ) {
+					$post_id    = intval( $_GET['post'] );
+					$post_title = get_the_title( $post_id );
+					$edit_link  = get_edit_post_link( $post_id );
+					?><input type='hidden' name='post' value='<?php echo $post_id; ?>' />
+					<p>
+						<?php printf( __( 'Scheduling Tweet for &ldquo;<a href="%s">%s</a>&rdquo;', 'wp-tweets-pro' ), $edit_link, $post_title ); ?>
+					</p>
+					<?php
+				} else {
+					$post_title = ( isset( $schedule['post'] ) ) ? get_the_title( $schedule['post'] ) : get_the_title( $last_id );
+					?><label for='post'><?php _e('Associate with Post:','wp-tweets-pro'); ?></label> <input type="text" name="post" class="suggest" id="post" aria-describedby="post_title" value="<?php echo ( isset( $schedule['post'] ) ) ? $schedule['post'] : $last_id; ?>" /> <span class="new" aria-live="assertive"></span><span id="post_title">(<?php echo $post_title; ?>)</span><?php	
+				}
+				?>
 			</p>
 			<?php if ( get_option( 'jd_individual_twitter_users' ) == '1' ) { ?>
 			<p>
 			<?php print('
-						<label for="alt_author">'.__('Post to this author', 'wp-tweets-pro').'</label>
+						<label for="alt_author">'.__('Post to author', 'wp-tweets-pro').'</label>
 						<select name="alt_author" id="alt_author">
 							<option value="main">'.__('Main site account','wp-tweets-pro').'</option>
 							<option value="false">'.__('Current User\'s account','wp-tweets-pro').'</option>');
@@ -170,16 +188,7 @@ function wpt_get_scheduled_tweets() {
 		</p>
 		<?php } ?>
 		<p><input type="submit" name="submit" value="<?php _e("Schedule a Tweet", 'wp-tweets-pro'); ?>" class="button-primary" /></p>
-		</form>	
-		<h3><?php _e('Recently published posts/IDs:','wp-tweets-pro'); ?></h3>
-		<ul class='columns' id="recent">
-		<?php 
-			$recent = wp_get_recent_posts( array( 'numberposts'=>15,'post_status'=>'publish' ) ); 
-			foreach( $recent as $post ) {
-				echo "<li><code>$post[ID]</code> - <strong>" . strip_tags( $post['post_title'] ) . "</strong></li>";
-			} 
-		?>
-		</ul>
+		</form>
 	</div>
 	</div>
 	</div>

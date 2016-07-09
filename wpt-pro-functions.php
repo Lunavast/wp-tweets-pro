@@ -459,18 +459,18 @@ function wpt_process_shortcodes( $tweet, $post_ID ) {
 
 add_action( 'wpt_recurring_tweets', 'wpt_recurring_tweet_handler', 10, 4 );
 function wpt_recurring_tweet_handler( $auth, $sentence, $rt, $post_id ) {
-	wpt_mail( "Recurring Tweet Happening: #$id","$sentence, $rt, $post_ID" ); // DEBUG
+	wpt_mail( "Recurring Tweet Happening: #$id","$sentence, $rt, $post_id" ); // DEBUG
 	
 	// set up sentence
 	$post_info = wpt_post_info( $post_id );
 	$sentence = jd_truncate_tweet( $sentence, $post_info, $post_id, false, $auth );
 
 	// set up media
-	$media = ( ( get_option( 'wpt_media' ) == '1' ) && ( has_post_thumbnail( $post_ID ) || wpt_post_attachment( $post_ID ) ) ) ? true : false;
-	$media = apply_filters( 'wpt_scheduled_media', $media, $post_ID, $rt ); // filter based on post ID	
+	$media = ( ( get_option( 'wpt_media' ) == '1' ) && ( has_post_thumbnail( $post_id ) || wpt_post_attachment( $post_id ) ) ) ? true : false;
+	$media = apply_filters( 'wpt_scheduled_media', $media, $post_id, $rt ); // filter based on post ID	
 	
 	// send Tweet
-	$tweet = jd_doTwitterAPIPost( $sentence, $auth, $post_ID, $media );
+	$tweet = jd_doTwitterAPIPost( $sentence, $auth, $post_id, $media );
 }
 
 /**
@@ -1621,6 +1621,34 @@ function wpt_enqueue_js() {
 		wp_enqueue_script( 'pickadate', plugins_url( 'js/pickadate/picker.js', __FILE__ ) );
 		wp_enqueue_script('pickadate.date', plugins_url( 'js/pickadate/picker.date.js', __FILE__ ), array('jquery') );	
 		wp_enqueue_script('pickadate.time', plugins_url( 'js/pickadate/picker.time.js', __FILE__ ), array('jquery') );	
+		wp_enqueue_script( 'jquery-ui-autocomplete' );
+		wp_enqueue_script( 'wpt.suggest', plugins_url( 'js/jquery.suggest.js', __FILE__ ), array(
+				'jquery',
+				'jquery-ui-autocomplete'
+			) );
+		wp_localize_script( 'wpt.suggest', 'wpt_ajax_action', 'wpt_post_lookup' );
+	}
+}
+
+add_action( 'wp_ajax_wpt_post_lookup', 'wpt_post_lookup' );
+function wpt_post_lookup() {
+	if ( isset( $_REQUEST['term'] ) ) {
+		$posts       = get_posts( array(
+			's'         => $_REQUEST['term'],
+			'post_type' => array( 'post', 'page' )
+		) );
+		$suggestions = array();
+		global $post;
+		foreach ( $posts as $post ):
+			setup_postdata( $post );
+			$suggestion          = array();
+			$suggestion['value'] = esc_html( $post->post_title );
+			$suggestion['id']    = $post->ID;
+			$suggestions[]       = $suggestion;
+		endforeach;
+
+		echo $_GET["callback"] . "(" . json_encode( $suggestions ) . ")";
+		exit;
 	}
 }
 

@@ -27,16 +27,15 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 * Make aware of custom plug-ins such as randomizer/custom Tweet scheduler - allow post meta settings to override, disable fields, etc. [todo]
 * Option to customize Tweet schedule for each re-post (with customize text) [todo]
 * Add custom Tweet options for taxonomy terms (custom template, custom URL, etc.) - Pending WordPress support for taxonomy meta. [todo]
-* Make all Tweet options fields persistent [todo]
 * Feature: dynamic scheduling - automatically set a schedule for Tweets
 * Feature: parse links for shortening when entered free text.
 * Feature: import Tweets as comments (search API based on URL; import any mention as a comment; save as comment)
 
-
 = 1.9.5 =
 
 * Bug fix: default Twitter Card type not pulled from settings when value not saved in post meta
-* 
+* Bug fix: custom-scheduled recurring Tweets did not pick up correct media image for upload
+* Improvement: Replaced list of recent posts with autosuggest field
 
 = 1.9.4 =
 
