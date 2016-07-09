@@ -26,7 +26,7 @@ Author URI: https://www.joedolson.com/
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 global $wptp_version;
-$wptp_version = '1.9.4';
+$wptp_version = '1.9.5';
 load_plugin_textdomain( 'wp-tweets-pro', false, dirname( plugin_basename( __FILE__ ) ) . '/lang' ); 
 // response to settings updates
 
