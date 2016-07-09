@@ -32,6 +32,12 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 * Feature: parse links for shortening when entered free text.
 * Feature: import Tweets as comments (search API based on URL; import any mention as a comment; save as comment)
 
+
+= 1.9.5 =
+
+* Bug fix: default Twitter Card type not pulled from settings when value not saved in post meta
+* 
+
 = 1.9.4 =
 
 * Feature improvement: Tweet Now and 'Schedule' buttons will now use selected authors & upload image status

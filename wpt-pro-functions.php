@@ -1548,20 +1548,22 @@ if ( get_option('wpt_twitter_card') == 1 ) {
 // determine type of twitter card to show
 // photo cards deprecated by Twitter July 3, 2015
 function wpt_twitter_card_type( $id ) {
+	$default = get_option( 'wpt_twitter_card_type' );
 	if ( get_post_meta( $id, '_wpt_twitter_card', true ) == 'photo' &&  wp_get_attachment_url( get_post_thumbnail_id( $id ) ) ) {
 		return 'summary_large_image'; 
 	} else if ( get_post_meta( $id, '_wpt_twitter_card', true ) == 'summary_large_image' && wp_get_attachment_url( get_post_thumbnail_id( $id ) ) ) {
 		return 'summary_large_image';	
 	} else {
-		$post = get_post( $id );
-		$content = $post->post_content;
+		$post         = get_post( $id );
+		$content      = $post->post_content;
 		$length_limit = ( get_option( 'wpt_toggle_card' ) ) ? get_option( 'wpt_toggle_card' ) : 0;
 		if ( strlen($content) <= $length_limit && wp_get_attachment_url( get_post_thumbnail_id( $id ) ) ) {
 			update_post_meta( $id, '_wpt_twitter_card', 'summary_large_image' );
 			return 'summary_large_image'; 
 		}
 	}
-	return 'summary';
+
+	return ( $default == 'summary' ) ? 'summary' : 'summary_large_image';
 }
 
 function wpt_twitter_card() {
