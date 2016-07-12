@@ -5,13 +5,13 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * Get and display list of scheduled Tweets
  */
 function wpt_get_scheduled_tweets() {
-	$schedule = wpt_schedule_custom_tweet( $_POST );
-	$deletions = ( isset( $_POST['delete-tweets'] ) && isset( $_POST['delete-list'] ) ) ? $_POST['delete-list'] : array();
-	$cron = _get_cron_array();
-	$schedules = wp_get_schedules();
+	$schedule    = wpt_schedule_custom_tweet( $_POST );
+	$deletions   = ( isset( $_POST['delete-tweets'] ) && isset( $_POST['delete-list'] ) ) ? $_POST['delete-list'] : array();
+	$cron        = _get_cron_array();
+	$schedules   = wp_get_schedules();
 	$date_format = _x( 'M j, Y @ G:i', 'Publish box date format', 'wp-tweets-pro' );
 	$clear_queue = wp_nonce_url( admin_url("admin.php?page=wp-to-twitter-schedule&amp;wpt=clear") );
-	$cur_sched = '';
+	$cur_sched   = '';
 	if ( isset( $schedule['message'] ) ) { echo $schedule['message']; }
 
 ?>
@@ -232,7 +232,7 @@ function wpt_schedule_custom_tweet( $post ) {
 		if ( !$sentence || !$post ) {
 			return array( 
 				'message'=>"<div class='error'><p>".__('You must include a custom tweet text and a post ID to associate the tweet with.','wp-tweets-pro')."</p></div>", 
-				'tweet'=>$sentence, 
+				'tweet'=>$sentence,
 				'post'=>$post_id 
 			); 
 		} else if ( !$time ) {

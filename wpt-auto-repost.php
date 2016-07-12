@@ -23,6 +23,12 @@ function wpt_auto_schedule() {
 		}
 		die;
 	}
+	/**
+	 * If a custom template is set on this post & the option to use them is enabled, use the custom template instead of the setting.
+	 */
+	$custom_template = get_post_meta( $post_ID, '_jd_twitter', true );
+	$template = ( get_option( 'wpt_schedule_custom' ) == 'true' && $custom_template != '' ) ? $custom_template : $template;
+	
 	$post_info = wpt_post_info( $post );
 	$sentence = jd_truncate_tweet( $template, $post_info, $post );
 	

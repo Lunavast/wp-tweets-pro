@@ -191,6 +191,9 @@ function wpt_update_pro_settings() {
 					update_option( 'wpt_schedule_template', $schedule_template );
 				}
 				
+				$wpt_schedule_custom = ( isset( $_POST['wpt_schedule_custom'] ) ) ? 'true' : 'false';
+				update_option( 'wpt_schedule_custom', $wpt_schedule_custom );
+				
 				$wpt_autopost_notification = ( isset( $_POST['wpt_autopost_notification'] ) ) ? $_POST['wpt_autopost_notification'] : false;
 				if ( $wpt_autopost_notification && is_email( $wpt_autopost_notification ) ) {
 					update_option( 'wpt_autopost_notification', $wpt_autopost_notification );
@@ -1155,7 +1158,7 @@ function wpt_pro_functions() {
 					?>
 					<p class="wpt-has-schedule">
 						<input type='hidden' name='wpt_is_scheduled' value='on' />
-						<input type='checkbox' id='wpt_unschedule' name='wpt_unschedule' /> <label for='wpt_unschedule'><?php _e( 'Cancel scheduled posting cycle', 'wp-tweets-pro' ); ?><?php echo ' (' . get_option( 'wpt_schedule' ) . ')'; ?>
+						<input type='checkbox' id='wpt_unschedule' name='wpt_unschedule' value="true" /> <label for='wpt_unschedule'><?php _e( 'Cancel scheduled posting cycle', 'wp-tweets-pro' ); ?><?php echo ' (' . get_option( 'wpt_schedule' ) . ')'; ?>
 					</p>
 					<?php							
 						}
@@ -1177,6 +1180,8 @@ function wpt_pro_functions() {
 						<label for='wpt_schedule_template'><?php _e( 'Template for autoscheduled posts', 'wp-tweets-pro' ); ?></label>
 						<textarea name='wpt_schedule_template' id='wpt_schedule_template' cols='60' rows='3' class='wpt-template' placeholder="#title# #url#"><?php esc_attr_e( stripslashes( get_option( 'wpt_schedule_template' ) ) ); ?></textarea>
 					</p>
+					<p>
+						<input type="checkbox" id="wpt_schedule_custom" name="wpt_schedule_custom" value="true"<?php checked( get_option( 'wpt_schedule_custom' ), 'true' ); ?> /> <label for="wpt_schedule_custom"><?php _e( 'Use custom Tweet template when available', 'wp-tweets-pro' ); ?></label>						
 					<p>
 						<label for="wpt_minimum_age"><?php _e( 'Minimum age eligible for automatic Tweeting', 'wp-tweets-pro' ); ?></label>
 						<select name='wpt_minimum_age' id='wpt_minimum_age'>

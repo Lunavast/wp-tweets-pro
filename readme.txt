@@ -33,6 +33,7 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 
 = 1.9.5 =
 
+* Feature: Option to use your saved custom Tweet when a Tweet is autoposted & a custom Tweet has been set.
 * Bug fix: default Twitter Card type not pulled from settings when value not saved in post meta
 * Bug fix: custom-scheduled recurring Tweets did not pick up correct media image for upload
 * Improvement: Replaced list of recent posts with autosuggest field
