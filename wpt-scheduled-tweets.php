@@ -39,7 +39,7 @@ function wpt_get_scheduled_tweets() {
 		<tbody>
 			<?php $offset = ( 60*60*get_option( 'gmt_offset' ) );
 			$class = '';
-			foreach ( $cron as $timestamp => $cronhooks ) { 
+			foreach ( $cron as $ts => $cronhooks ) { 
 				foreach ( (array) $cronhooks as $hook => $events ) { 
 					$i = 0; foreach ( (array) $events as $event ) { 
 						if ( $hook == 'wpt_schedule_tweet_action' || $hook == 'wpt_recurring_tweets' ) {
@@ -54,16 +54,16 @@ function wpt_get_scheduled_tweets() {
 								$rt = $event['args']['rt'];
 								$post_ID = $event['args']['post_id'];
 							}
-							$id = md5( $timestamp . $auth . $rt . $post_ID . $sentence );
+							$id = md5( $ts . $auth . $rt . $post_ID . $sentence );
 							
 							if ( ( isset( $_GET['wpt'] ) && $_GET['wpt'] == 'clear' ) && ( isset( $_GET['_wpnonce'] ) && wp_verify_nonce( $_GET['_wpnonce'] ) ) ) {
-								wp_unschedule_event( $timestamp, $hook, array( 'id'=>$auth,'sentence'=>$sentence, 'rt'=>$rt,'post_id'=>$post_ID ) );
-								echo "<div id='message' class='updated'><p>".sprintf(__('Tweet for %1$s has been deleted.','wp-tweets-pro'),date( $date_format, ($timestamp+$offset) ))."</p></div>";
+								wp_unschedule_event( $ts, $hook, array( 'id'=>$auth,'sentence'=>$sentence, 'rt'=>$rt,'post_id'=>$post_ID ) );
+								echo "<div id='message' class='updated'><p>".sprintf(__('Tweet for %1$s has been deleted.','wp-tweets-pro'),date( $date_format, ($ts+$offset) ))."</p></div>";
 							} else if ( in_array( $id, $deletions ) ) {
-								wp_unschedule_event( $timestamp, $hook, array( 'id'=>$auth,'sentence'=>$sentence,'rt'=>$rt,'post_id'=>$post_ID ) );
-								echo "<div id='message' class='updated'><p>".__('Scheduled Tweet has been deleted.','wp-tweets-pro')."</p></div>";							
+								wp_unschedule_event( $ts, $hook, array( 'id'=>$auth,'sentence'=>$sentence,'rt'=>$rt,'post_id'=>$post_ID ) );
+								echo "<div id='message' class='updated'><p>".__('Scheduled Tweet has been deleted.','wp-tweets-pro')."</p></div>";					
 							} else {
-								$time_diff = human_time_diff( $timestamp+$offset, time()+$offset );							
+								$time_diff = human_time_diff( $ts+$offset, time()+$offset );							
 								$image = '';
 								if ( get_option( 'wpt_media' ) == 1 ) {
 									if ( get_post_meta( $post_ID, '_wpt_image', true ) != 1 ) {
@@ -86,7 +86,7 @@ function wpt_get_scheduled_tweets() {
 								}
 							?>
 							<tr class='<?php echo $class; ?>'>
-								<th scope="row"><?php echo date_i18n( $date_format, ( $timestamp + $offset ) ); ?><br /><small>(~<?php echo $time_diff.$cur_sched; ?>)</small></th>
+								<th scope="row"><?php echo date_i18n( $date_format, ( $ts + $offset ) ); ?><br /><small>(~<?php echo $time_diff.$cur_sched; ?>)</small></th>
 								<td id='sentence-<?php echo $id; ?>'><strong><?php echo "$sentence $image"; ?></td>
 								<td><a href='<?php echo $link; ?>'><?php echo $account; ?></a></td>
 								<td><input type='checkbox' id='checkbox-<?php echo $id; ?>' value='<?php echo $id; ?>' name='delete-list[]' aria-describedby='sentence-<?php echo $id; ?>' /> <label for='checkbox-<?php echo $id; ?>'><?php _e( 'Delete', 'wp-tweets-pro' ); ?></label></td>
