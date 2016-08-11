@@ -111,10 +111,10 @@ function wpt_update_pro_settings() {
 				$wpt_retweet_repeat = $_POST['wpt_retweet_repeat'];
 				update_option('wpt_retweet_repeat', $wpt_retweet_repeat );
 				
-				$wpt_custom_type = ( isset( $_POST['wpt_custom_type'] ) )?$_POST['wpt_custom_type']:'prefix';
-				$wpt_prepend_rt3 = ( isset( $_POST['wpt_prepend_rt3'] ) )?$_POST['wpt_prepend_rt3']:'';				
-				$wpt_prepend_rt2 = ( isset( $_POST['wpt_prepend_rt2'] ) )?$_POST['wpt_prepend_rt2']:'';
-				$wpt_prepend_rt = ( isset( $_POST['wpt_prepend_rt'] ) )?$_POST['wpt_prepend_rt']:'';
+				$wpt_custom_type = ( isset( $_POST['wpt_custom_type'] ) ) ? $_POST['wpt_custom_type']:'prefix';
+				$wpt_prepend_rt3 = ( isset( $_POST['wpt_prepend_rt3'] ) ) ? $_POST['wpt_prepend_rt3']:'';				
+				$wpt_prepend_rt2 = ( isset( $_POST['wpt_prepend_rt2'] ) ) ? $_POST['wpt_prepend_rt2']:'';
+				$wpt_prepend_rt = ( isset( $_POST['wpt_prepend_rt'] ) ) ? $_POST['wpt_prepend_rt']:'';
 				update_option('wpt_custom_type',$wpt_custom_type );
 				update_option('wpt_prepend_rt', $wpt_prepend_rt );
 				update_option('wpt_prepend_rt2', $wpt_prepend_rt2 );
@@ -249,6 +249,7 @@ function wpt_filter_tweet( $string, $id, $context ) {
 				$newtag = str_ireplace( " ",$replace,trim( $tag ) );
 				$t_id = $value->term_id; 
 				$term_meta = get_option( "wpt_taxonomy_$t_id" );
+				if ( $strip == '1' ) { $newtag = preg_replace( $search, $replace, $newtag ); }				
 				switch ( $term_meta ) {
 					case 1 : $newtag = "#$tag"; break;
 					case 2 : $newtag = "$$tag"; break;
@@ -256,7 +257,6 @@ function wpt_filter_tweet( $string, $id, $context ) {
 					case 4 : $newtag = $tag; break;
 					default: $newtag = apply_filters( 'wpt_tag_default', "#", $t_id ).$tag;
 				}
-				if ( $strip == '1' ) { $newtag = preg_replace( $search, $replace, $newtag ); }
 				if ( mb_strlen( $newtag ) > 2 ) {
 					// replaces whole words only
 					$tag = preg_replace( '/[\/]/','', $tag ); // need to remove slashes
@@ -284,10 +284,12 @@ function wpt_update_term_meta( $old_term_id, $new_term_id, $term_taxonomy_id, $t
 add_filter( 'wpt_schedule_retweet', 'wpt_blackout_period', 10, 4 );
 function wpt_blackout_period( $time, $acct, $i, $post_info ) {
 	$orig_time = $time;
-	$blackout = get_option( 'wpt_blackout' );
-	$from = $blackout['from'];
-	$to = $blackout['to'];
-	if ( $from == $to ) { return $time; }
+	$blackout  = get_option( 'wpt_blackout' );
+	$from      = $blackout['from'];
+	$to        = $blackout['to'];
+	if ( $from == $to ) { 
+		return $time; 
+	}
 	$hour = date( 'G', current_time( 'timestamp' )+$time );
 	if ( $from < $to ) {
 		$jump = ( ( 24 - $from ) + $to ) - 24;
@@ -299,6 +301,7 @@ function wpt_blackout_period( $time, $acct, $i, $post_info ) {
 	if ( $blackout ) {
 		$time = $time + ( $jump*60*60 );
 	}
+
 	return $time;
 }
 
@@ -482,16 +485,16 @@ function wpt_recurring_tweet_handler( $auth, $sentence, $rt, $post_id ) {
 add_filter( 'wpt_post_info', 'wpt_insert_post_info',10,2 );
 function wpt_insert_post_info( $values, $post_ID ) {
 	if ( is_array( $values ) ) {
-		$delay = ( isset( $_POST['_wpt_delay_tweet'] ) && is_numeric( $_POST['_wpt_delay_tweet'] )  )?$_POST['_wpt_delay_tweet']:get_post_meta( $post_ID, '_wpt_delay_tweet',true );
+		$delay = ( isset( $_POST['_wpt_delay_tweet'] ) && is_numeric( $_POST['_wpt_delay_tweet'] )  ) ? $_POST['_wpt_delay_tweet']:get_post_meta( $post_ID, '_wpt_delay_tweet',true );
 		$after = ( isset( $_POST['_wpt_retweet_after'] ) && is_numeric( $_POST['_wpt_retweet_after'] ) ) ? $_POST['_wpt_retweet_after']:get_post_meta( $post_ID, '_wpt_retweet_after',true );
 		$auth_repeat = ( get_user_meta( $values['authId'], 'wpt_retweet_repeat', true ) != '' ) ? get_user_meta( $values['authId'], 'wpt_retweet_repeat', true ) : false;
-		$repeat = ( isset( $_POST['_wpt_retweet_repeat'] ) && is_numeric( $_POST['_wpt_retweet_repeat'] ) )?$_POST['_wpt_retweet_repeat']:get_post_meta( $post_ID, '_wpt_retweet_repeat',true );
+		$repeat = ( isset( $_POST['_wpt_retweet_repeat'] ) && is_numeric( $_POST['_wpt_retweet_repeat'] ) ) ? $_POST['_wpt_retweet_repeat']:get_post_meta( $post_ID, '_wpt_retweet_repeat',true );
 		
 		$no_delay = ( isset( $_POST['wpt-no-delay'] ) )?'on':false;
 		$no_repost = ( isset( $_POST['wpt-no-repost'] ) )?'on':false;
 		$image = ( isset( $_POST['_wpt_image'] ) && $_POST[ '_wpt_image'] == 1 ) ? 1 : false;
 		$cotweet = ( isset( $_POST['wpt_cotweet'] ) ) ? 1 : get_post_meta( $post_ID, '_wpt_cotweet',true );
-		$wpt_authorized_users = ( isset( $_POST['_wpt_authorized_users'] ) )?$_POST['_wpt_authorized_users']:array();
+		$wpt_authorized_users = ( isset( $_POST['_wpt_authorized_users'] ) ) ? $_POST['_wpt_authorized_users']:array();
 		
 		$values['wpt_cotweet'] = $cotweet;
 		$values['wpt_authorized_users'] = $wpt_authorized_users;
@@ -845,10 +848,11 @@ function wpt_retweet_custom_tweets( $return, $post_ID=false ) {
 					$tweet = get_option( "wpt_prepend_rt$x" );
 				}
 			}
-			$return .= "<p class='jtw'><label for='wpt_retweet_$i'>".sprintf( __( 'Retweet %d', 'wp-tweets-pro' ), $n )."</label> <textarea class='wpt_tweet_box' name='_wpt_retweet_text[]' id='wpt_retweet_$i'>".esc_attr( $tweet )."</textarea></p>";
+			$return .= "<p class='jtw'><label for='wpt_retweet_$i'>".sprintf( __( 'Retweet %d', 'wp-tweets-pro' ), $n )."</label> <textarea class='wpt_tweet_box' name='_wpt_retweet_text[]' id='wpt_retweet_$i'>".esc_attr( stripslashes( $tweet ) )."</textarea></p>";
 		}
 		$return .= "</div>";
 	}
+	
 	return $return;
 }
 
@@ -1195,10 +1199,10 @@ function wpt_pro_functions() {
 					<p>
 						<label for="wpt_maximum_age"><?php _e( 'Maximum age eligible for automatic Tweeting', 'wp-tweets-pro' ); ?></label>
 						<select name='wpt_maximum_age' id='wpt_maximum_age'>
-							<option value='none'<?php selected( get_option( 'wpt_maximum_age' ), 1 ); ?>><?php _e( 'No limit', 'wp-tweets-pro' ); ?></option>						
-							<option value='31536000'<?php selected( get_option( 'wpt_maximum_age' ), 2628000  ); ?>><?php _e( '1 month', 'wp-tweets-pro' ); ?></option>
-							<option value='31536000'<?php selected( get_option( 'wpt_maximum_age' ), 7884000 ); ?>><?php _e( '3 months', 'wp-tweets-pro' ); ?></option>
-							<option value='31536000'<?php selected( get_option( 'wpt_maximum_age' ), 15768000 ); ?>><?php _e( '6 months', 'wp-tweets-pro' ); ?></option>
+							<option value='none'<?php selected( get_option( 'wpt_maximum_age' ), 1 ); ?>><?php _e( 'No limit', 'wp-tweets-pro' ); ?></option>		
+							<option value='2628000'<?php selected( get_option( 'wpt_maximum_age' ), 2628000  ); ?>><?php _e( '1 month', 'wp-tweets-pro' ); ?></option>
+							<option value='7884000'<?php selected( get_option( 'wpt_maximum_age' ), 7884000 ); ?>><?php _e( '3 months', 'wp-tweets-pro' ); ?></option>
+							<option value='15768000'<?php selected( get_option( 'wpt_maximum_age' ), 15768000 ); ?>><?php _e( '6 months', 'wp-tweets-pro' ); ?></option>
 							<option value='31536000'<?php selected( get_option( 'wpt_maximum_age' ), 31536000 ); ?>><?php _e( '12 months', 'wp-tweets-pro' ); ?></option>
 							<option value='63072000'<?php selected( get_option( 'wpt_maximum_age' ), 63072000 ); ?>><?php _e( '2 years', 'wp-tweets-pro' ); ?></option>	
 							<option value='157680000'<?php selected( get_option( 'wpt_maximum_age' ), 157680000 ); ?>><?php _e( '5 years', 'wp-tweets-pro' ); ?></option>
@@ -1382,22 +1386,22 @@ function wpt_set_retweet_text( $template, $rt ) {
 	$prepend = $append = '';
 	switch( $rt ) {
 		case 1:
-		$prepend = ( get_option('wpt_prepend') == 1 )?'':get_option('wpt_prepend_rt');
-		$append = ( get_option('wpt_prepend') != 1 )?'':get_option('wpt_prepend_rt');
+		$prepend = ( get_option('wpt_prepend') == 1 ) ? '' : get_option('wpt_prepend_rt');
+		$append = ( get_option('wpt_prepend') != 1 ) ? '' : get_option('wpt_prepend_rt');
 		break;
 		case 2:
-		$prepend = ( get_option('wpt_prepend') == 1 )?'':get_option('wpt_prepend_rt2');
-		$append = ( get_option('wpt_prepend') != 1 )?'':get_option('wpt_prepend_rt2');
+		$prepend = ( get_option('wpt_prepend') == 1 ) ? '' : get_option('wpt_prepend_rt2');
+		$append = ( get_option('wpt_prepend') != 1 ) ? '' : get_option('wpt_prepend_rt2');
 		break;
 		case 3:
-		$prepend = ( get_option('wpt_prepend') == 1 )?'':get_option('wpt_prepend_rt3');
-		$append = ( get_option('wpt_prepend') != 1 )?'':get_option('wpt_prepend_rt3');
+		$prepend = ( get_option('wpt_prepend') == 1 ) ? '' : get_option('wpt_prepend_rt3');
+		$append = ( get_option('wpt_prepend') != 1 ) ? '' : get_option('wpt_prepend_rt3');
 		break;
 	}
 	if ( get_option( 'wpt_custom_type' ) == 'template' ) {
-		$retweet = trim( $prepend.$append );
+		$retweet = trim( stripslashes( $prepend. $append ) );
 	} else {
-		$retweet = trim( $prepend.$template.$append );
+		$retweet = trim( stripslashes( $prepend ).$template. stripslashes( $append ) );
 	}
 	// get custom value
 	if ( isset( $_POST['_wpt_retweet_text'] ) && !empty( $_POST['_wpt_retweet_text'] ) ) {
@@ -1670,10 +1674,10 @@ function wpt_edit_terms_fields() {
 		$taxonomies = array();
 	}
 	foreach ( $taxonomies as $value ) {
-			add_action( $value . '_add_form_fields', 'wpt_add_term', 10, 1 );
-			add_action( $value . '_edit_form_fields', 'wpt_edit_term', 10, 2 );
-			add_action( 'edit_'.$value, 'wpt_save_term', 10, 2 );
-			add_action( 'created_'.$value, 'wpt_save_term', 10, 2 );
+		add_action( $value . '_add_form_fields', 'wpt_add_term', 10, 1 );
+		add_action( $value . '_edit_form_fields', 'wpt_edit_term', 10, 2 );
+		add_action( 'edit_'.$value, 'wpt_save_term', 10, 2 );
+		add_action( 'created_'.$value, 'wpt_save_term', 10, 2 );
 	}
 }
 
