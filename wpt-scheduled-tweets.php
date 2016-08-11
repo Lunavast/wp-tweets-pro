@@ -130,7 +130,7 @@ function wpt_get_scheduled_tweets() {
 			<div class='time'>
 				<label for='wpt_time'><?php _e('Time','wp-tweets-pro'); ?></label><br />
 				<input type='text' name='time' id='wpt_time' size="20" value='<?php echo date_i18n('h:i a',(current_time( 'timestamp' )+300) ); ?>' />
-			</div>
+			</div>			
 			<div class='recurrence'>
 				<label for='wpt_recurrence'><?php _e( 'Frequency', 'wp-tweets-pro' ); ?></label>
 				<select name='wpt_recurrence' id='wpt_recurrence'>
@@ -146,6 +146,11 @@ function wpt_get_scheduled_tweets() {
 					?>					
 				</select>
 			</div>
+			<div class='autoschedule'>
+				<p>
+					<input type='checkbox' name='autoschedule' id='wpt_autoschedule' size="20" value='true' /> <label for='wpt_autoschedule'><?php _e('Auto-schedule','wp-tweets-pro'); ?></label>
+				</p>
+			</div>	
 			</div>
 			<?php $last = wp_get_recent_posts( array( 'numberposts'=>1, 'post_type'=>'post', 'post_status'=>'publish' ) ); $last_id = $last['0']['ID']; ?>
 			<p>
@@ -201,6 +206,26 @@ function wpt_get_scheduled_tweets() {
 <?php
 }
 
+
+function wpt_test_time( $time, $from, $to ) {
+	$hour = date( 'G', $time );
+	if ( $hour > $from || $hour < $to ) {
+		$time = wpt_increment_time( $time, $from, $to );
+	}
+	
+	return $time;
+}
+
+function wpt_increment_time( $time, $from, $to ) {
+	$hour = date( 'G', $time );	
+	while( $hour > $from || $hour < $to ) {
+		$time += 15*60 + mt_rand( 0, 6000 );
+		$hour = date( 'G', $time );		
+	}
+	
+	return $time;
+}
+
 /**
  * Schedule a custom Tweet
  */
@@ -226,9 +251,24 @@ function wpt_schedule_custom_tweet( $post ) {
 			$post_info = wpt_post_info( $post_id );
 			$sentence  = jd_truncate_tweet( $sentence, $post_info, $post_id, false, false );
 		}
-		$time = ( isset( $post['time'] ) && isset( $post['date'] ) ) ? ( strtotime( $post['date'] . ' ' . $post['time'] ) ):'' ;
-		$time = ( $time > current_time( 'timestamp' ) ) ? $time : false;
-		$time = ( $time ) ? $time - $offset : $time; 
+		
+		if ( isset( $post['autoschedule'] ) && $post['autoschedule'] == 'true' ) {
+			$max      = DAY_IN_SECONDS;
+			$time     = mt_rand( 300, $max );			
+			$blackout = get_option( 'wpt_blackout' );
+			$from     = $blackout['from'];
+			$to       = $blackout['to'];
+			if ( $from == $to ) {
+				$time = current_time( 'timestamp' ) + mt_rand( 300, $max );
+			} else {
+				$time = current_time( 'timestamp' ) + mt_rand( 300, $max );
+				$time = wpt_test_time( $time, $from, $to );
+			}
+		} else {
+			$time = ( isset( $post['time'] ) && isset( $post['date'] ) ) ? ( strtotime( $post['date'] . ' ' . $post['time'] ) ) : '' ;
+			$time = ( $time > current_time( 'timestamp' ) ) ? $time : false;
+			$time = ( $time ) ? $time - $offset : $time; 
+		}
 		if ( !$sentence || !$post ) {
 			return array( 
 				'message'=>"<div class='error'><p>".__('You must include a custom tweet text and a post ID to associate the tweet with.','wp-tweets-pro')."</p></div>", 
