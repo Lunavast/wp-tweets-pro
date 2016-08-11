@@ -76,7 +76,11 @@ function wpt_select_post( $return = 'post' ) {
 			'fields' => 'ids',			
 			'post_status' => 'publish',
 			'posts_per_page' => '-1'
-		);			
+		);	
+	/**
+	 * These are the arguments to select posts eligible for Tweets.
+	 */
+	apply_filters( 'wpt_autopost_args', $args );
 	
 	$posts = new WP_query( $args );
 	
