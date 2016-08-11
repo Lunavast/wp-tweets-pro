@@ -27,9 +27,15 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 * Make aware of custom plug-ins such as randomizer/custom Tweet scheduler - allow post meta settings to override, disable fields, etc. [todo]
 * Option to customize Tweet schedule for each re-post (with customize text) [todo]
 * Add custom Tweet options for taxonomy terms (custom template, custom URL, etc.) - Pending WordPress support for taxonomy meta. [todo]
-* Feature: dynamic scheduling - automatically set a schedule for Tweets
-* Feature: parse links for shortening when entered free text.
 * Feature: import Tweets as comments (search API based on URL; import any mention as a comment; save as comment)
+* Option to insert tags into title & append remaining tags as hashtags
+
+= 1.9.6 =
+
+* Bug fix: when parsing hashtags in titles & excerpts, nonalphanumeric characters were stripped out after # was added
+* Bug fix: maximum age options in autoTweeting of old posts had incorrect values
+* Bug fix: Slashes were not stripped out on repost prefixes
+* Feature: automatic scheduling from Scheduled Tweets page. Mostly random, but avoiding any defined blackout period.
 
 = 1.9.5 =
 
