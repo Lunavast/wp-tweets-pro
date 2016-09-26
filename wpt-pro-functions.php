@@ -664,12 +664,15 @@ add_filter( 'wpt_save_user', 'wpt_update_twitter_user_fields', 10, 2 );
 function wpt_update_twitter_user_fields( $edit_id, $post ) {
 	if ( current_user_can( 'wpt_twitter_oauth' ) || current_user_can( 'manage_options' ) ) {	
 		if ( function_exists( 'wpt_pro_exists' ) ) {
-			$templates = isset( $post['wpt_templates'] ) ? $post['wpt_templates'] : '';
-			update_user_meta( $edit_id, 'wpt_templates', $templates );
-			$reposts =  isset( $post['wpt_retweet_repeat'] ) ? $post['wpt_retweet_repeat'] : '';
-			update_user_meta( $edit_id, 'wpt_retweet_repeat', $reposts );
+			if ( isset( $post['submit'] ) ) {
+				$templates = isset( $post['wpt_templates'] ) ? $post['wpt_templates'] : '';
+				update_user_meta( $edit_id, 'wpt_templates', $templates );
+				$reposts =  isset( $post['wpt_retweet_repeat'] ) ? $post['wpt_retweet_repeat'] : '';
+				update_user_meta( $edit_id, 'wpt_retweet_repeat', $reposts );
+			}
 		}
 	}
+	
 	return $edit_id; 
 }
 
@@ -682,6 +685,9 @@ add_filter( 'wpt_twitter_user_fields', 'wpt_twitter_oauth3' );
 function wpt_twitter_oauth3() {
 	// Build TwitterOAuth object with client credentials. 
 	/*
+	$current_user = wp_get_current_user();
+	$user_edit = ( isset( $_GET['user_id'] ) ) ? (int) $_GET['user_id'] : $current_user->ID;
+	
 	$ack = get_option( 'app_consumer_key' );
 	$acs = get_option( 'app_consumer_secret' );
 	$connection = new wpt_TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET);
@@ -698,8 +704,11 @@ function wpt_twitter_oauth3() {
  * Add Twitter user settings to user account.
  */
 add_filter( 'wpt_twitter_user_fields','wpt_twitter_user_fields' );
-function wpt_twitter_user_fields( $edit_id ) {
+function wpt_twitter_user_fields() {
 	// show form fields on user profile
+	$current_user = wp_get_current_user();
+	$edit_id = ( isset( $_GET['user_id'] ) ) ? (int) $_GET['user_id'] : $current_user->ID;
+	
 	$templates = get_user_meta( $edit_id, 'wpt_templates', true );
 	$reposts = get_user_meta( $edit_id, 'wpt_retweet_repeat', true );
 	$edit = ( isset( $templates['edit'] ) ) ? $templates['edit'] : '';

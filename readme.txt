@@ -30,6 +30,11 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 * Feature: import Tweets as comments (search API based on URL; import any mention as a comment; save as comment)
 * Option to insert tags into title & append remaining tags as hashtags
 
+= 1.9.7 =
+
+* Bug fix: Problems saving custom user settings
+* 
+
 = 1.9.6 =
 
 * Bug fix: when parsing hashtags in titles & excerpts, nonalphanumeric characters were stripped out after # was added
