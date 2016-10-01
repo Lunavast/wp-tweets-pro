@@ -680,11 +680,10 @@ function wpt_update_twitter_user_fields( $edit_id, $post ) {
  * Add Twitter 3-legged authentication to user account
  *
  * Need to update to latest TwitterOAuth to do this.
-*/
+
 add_filter( 'wpt_twitter_user_fields', 'wpt_twitter_oauth3' );
 function wpt_twitter_oauth3() {
 	// Build TwitterOAuth object with client credentials. 
-	/*
 	$current_user = wp_get_current_user();
 	$user_edit = ( isset( $_GET['user_id'] ) ) ? (int) $_GET['user_id'] : $current_user->ID;
 	
@@ -696,9 +695,27 @@ function wpt_twitter_oauth3() {
 	$request_token = $connection->oauth( 'oauth/request_token', array( 'oauth_callback' => home_url() ) );
 
 	print_r($request_token); 
-	*/
 }
+*/
 
+/**
+ * Filter Tweet template to check for any term-specific template. Term-specific templates are implemented before other changes.
+ */
+add_filter( 'wpt_tweet_sentence', 'wpt_taxonomy_template', 9, 2 );
+function wpt_taxonomy_template( $tweet, $post_ID ) {
+	$taxonomies = get_post_taxonomies( $post_ID );
+	foreach( $taxonomies as $tax ) {
+		$terms = get_the_terms( $post_ID, $tax );
+		foreach( $terms as $term ) {
+			$template = get_term_meta( $term->term_id, '_wpt_term_template', true );
+			if ( $template != '' ) {
+				return apply_filters( 'wpt_term_template_filter', $template, $term->term_id );
+			}
+		}
+	}
+	
+	return $tweet;
+}
 
 /**
  * Add Twitter user settings to user account.
@@ -1693,6 +1710,10 @@ function wpt_edit_terms_fields() {
 function wpt_save_term( $term_id, $tax_id ) {
 	$option_set = get_option( "wpt_taxonomy_revive_$term_id" );
 	if ( isset( $_POST['taxonomy'] ) ) {
+		if ( isset( $_POST['wpt_term_template'] ) ) {
+			$template = update_term_meta( $term_id, '_wpt_term_template', trim( strip_tags( $_POST['wpt_term_template'] ) ) );
+		}
+	
 		$taxonomy = $_POST['taxonomy'];
 		if ( isset( $_POST['wpt_term_revive'] ) && $option_set != 1 ) {
 			update_option( "wpt_taxonomy_revive_$term_id", 1 );
@@ -1729,15 +1750,24 @@ function wpt_save_term( $term_id, $tax_id ) {
 function wpt_edit_term( $term, $taxonomy ) {
 	$t_id = $term->term_id;
 	$term_meta = get_option( "wpt_taxonomy_revive_$t_id" );
+	$template = get_term_meta( $t_id, '_wpt_term_template', true );
 ?>
     <tr class="form-field">
-            <th valign="top" scope="row">
-                <label for="wpt_term_revive"><?php _e( 'Don\'t autotweet this term','wp-tweets-pro' ); ?></label>
-            </th>
-            <td>
-				<input type='checkbox' value='1' name='wpt_term_revive' id='wpt_term_revive'<?php checked( $term_meta, 1 ); ?> />
-            </td>
-        </tr>
+		<th valign="top" scope="row">
+			<label for="wpt_term_revive"><?php _e( 'Don\'t autotweet this term','wp-tweets-pro' ); ?></label>
+		</th>
+		<td>
+			<input type='checkbox' value='1' name='wpt_term_revive' id='wpt_term_revive'<?php checked( $term_meta, 1 ); ?> />
+		</td>
+	</tr>
+    <tr class="form-field">
+		<th valign="top" scope="row">
+			<label for="wpt_term_template"><?php _e( 'Term Tweet Template','wp-tweets-pro' ); ?></label>
+		</th>
+		<td>
+			<input type='text' value='<?php esc_attr_e( $template ); ?>' name='wpt_term_template' id='wpt_term_template' />
+		</td>
+	</tr>
         <?php 	
 }
 
@@ -1746,6 +1776,9 @@ function wpt_add_term( $tag ) {
     <div class="form-field">
 		<input type='checkbox' value='1' id='wpt_term_revive' name='wpt_term_revive' /> <label for="wpt_term_revive" style='display: inline;'><?php _e( 'Don\'t autotweet this term','wp-tweets-pro' ); ?></label>
 	</div>
+    <div class="form-field">
+		<label for="wpt_term_template" style='display: inline;'><?php _e( 'Term Tweet Template','wp-tweets-pro' ); ?></label> <input type='text' value='' id='wpt_term_template' name='wpt_term_template' /> 
+	</div>	
 	<?php 
 }
 

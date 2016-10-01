@@ -125,7 +125,7 @@ function wpt_select_post( $return = 'post' ) {
 		$rand = mt_rand( 0, $max-1 );
 		$post = $posts[$rand];
 		$value = $post;
-	}
+	}	
 	if ( $return == 'post' ) {
 		return $value;	
 	} else {
