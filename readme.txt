@@ -4,7 +4,7 @@ Donate link: http://www.joedolson.com/donate/
 Tags: twitter, microblogging, su.pr, bitly, yourls, redirect, shortener, post, links
 Requires at least: 4.2
 Tested up to: 4.6
-Stable tag: 1.9.7
+Stable tag: 1.9.8
 License: GPLv2 or later
 
 Posts a Twitter update when you update your WordPress blog or post to your blogroll. Requires WP to Twitter.
@@ -29,6 +29,10 @@ WP Tweets PRO adds new features to WP to Twitter, including:
 * Add custom Tweet options for taxonomy terms (custom template, custom URL, etc.) - Pending WordPress support for taxonomy meta. [todo]
 * Feature: import Tweets as comments (search API based on URL; import any mention as a comment; save as comment)
 * Option to insert tags into title & append remaining tags as hashtags
+
+= 1.9.8 =
+
+* Bug fix: verify $terms is an array before iterating
 
 = 1.9.7 =
 
