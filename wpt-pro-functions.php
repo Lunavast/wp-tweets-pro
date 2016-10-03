@@ -706,10 +706,12 @@ function wpt_taxonomy_template( $tweet, $post_ID ) {
 	$taxonomies = get_post_taxonomies( $post_ID );
 	foreach( $taxonomies as $tax ) {
 		$terms = get_the_terms( $post_ID, $tax );
-		foreach( $terms as $term ) {
-			$template = get_term_meta( $term->term_id, '_wpt_term_template', true );
-			if ( $template != '' ) {
-				return apply_filters( 'wpt_term_template_filter', $template, $term->term_id );
+		if ( is_array( $terms ) ) {
+			foreach( $terms as $term ) {
+				$template = get_term_meta( $term->term_id, '_wpt_term_template', true );
+				if ( $template != '' ) {
+					return apply_filters( 'wpt_term_template_filter', $template, $term->term_id );
+				}
 			}
 		}
 	}
