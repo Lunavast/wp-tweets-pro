@@ -34,8 +34,9 @@ function wpt_auto_schedule() {
 	
 	$media = ( ( get_option( 'wpt_media' ) == 1 ) && ( has_post_thumbnail( $post ) || wpt_post_attachment( $post ) ) ) ? true : false;
 	$media = apply_filters( 'wpt_upload_media', $media, $post ); // filter based on post ID
-	
 	$tweet = jd_doTwitterAPIPost( $sentence, false, $post, $media );
+	
+	do_action( 'wpt_autopost', $tweet, $post );
 	// if Tweeted successfully, add to post meta so this will not be Tweeted again until all old posts have been Tweeted.
 	if ( $tweet ) {
 		if ( $notify_user && is_email( $notify_user ) ) {
